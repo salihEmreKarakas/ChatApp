@@ -185,6 +185,24 @@
       color: white;
       font-weight: 600;
       font-size: 18px;
+      position: relative;
+    }
+
+    .status-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #9e9e9e;
+      border: 2px solid white;
+      transition: background 0.3s ease;
+    }
+
+    .status-dot.online {
+      background: #4caf50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
     }
 
     .contact-info {
@@ -375,6 +393,21 @@
       color: #888;
       margin-bottom: 4px;
       font-weight: 600;
+    }
+
+    .message-seen {
+      font-size: 10px;
+      margin-left: 6px;
+      color: #999;
+      display: inline-block;
+    }
+
+    .message-seen.seen {
+      color: #4fc3f7;
+    }
+
+    .message.sent .message-bubble {
+      position: relative;
     }
 
     .system-message {
