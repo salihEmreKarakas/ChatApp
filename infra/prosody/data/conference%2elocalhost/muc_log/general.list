@@ -1,0 +1,620 @@
+item({
+	{
+		"slm";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283250;
+	["key"] = "kw9ZQbGKW-zL6zP8";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:07:30";
+		["stamp"] = "2026-02-16T23:07:30Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"Qslm";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "moderator";
+				["affiliation"] = "owner";
+				["jid"] = "emre@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283252;
+	["key"] = "jhQ2FJPxBntcN7o-";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/emre";
+		["stamp_legacy"] = "20260216T23:07:32";
+		["stamp"] = "2026-02-16T23:07:32Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"Nbr";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "moderator";
+				["affiliation"] = "owner";
+				["jid"] = "emre@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283419;
+	["key"] = "xTHEVzAIuE4deJeJ";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/emre";
+		["stamp_legacy"] = "20260216T23:10:19";
+		["stamp"] = "2026-02-16T23:10:19Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283424;
+	["key"] = "y6yHWWGvvgYqt7Lk";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:24";
+		["stamp"] = "2026-02-16T23:10:24Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283424;
+	["key"] = "0MWcszNmUHFjHaFI";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:24";
+		["stamp"] = "2026-02-16T23:10:24Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283425;
+	["key"] = "s7TtGbKZKvPm7h_0";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:25";
+		["stamp"] = "2026-02-16T23:10:25Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283425;
+	["key"] = "PrRMo4m6xcm9mzRT";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:25";
+		["stamp"] = "2026-02-16T23:10:25Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283425;
+	["key"] = "elOScZhmEkt0RHKt";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:25";
+		["stamp"] = "2026-02-16T23:10:25Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283425;
+	["key"] = "NoHQFv1TFEWNN9O7";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:25";
+		["stamp"] = "2026-02-16T23:10:25Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283425;
+	["key"] = "ghR0MuVnLObowvHT";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:25";
+		["stamp"] = "2026-02-16T23:10:25Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283426;
+	["key"] = "OTXXKb9zJ1qml3Th";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:26";
+		["stamp"] = "2026-02-16T23:10:26Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283426;
+	["key"] = "BYlmRq0P93SS4l76";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:26";
+		["stamp"] = "2026-02-16T23:10:26Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283426;
+	["key"] = "5VgQmI8vGKy7rHt9";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:26";
+		["stamp"] = "2026-02-16T23:10:26Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283426;
+	["key"] = "v7NvH_fpzlhDa4KG";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:26";
+		["stamp"] = "2026-02-16T23:10:26Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283426;
+	["key"] = "xpwDHIyf45QHLV-6";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:26";
+		["stamp"] = "2026-02-16T23:10:26Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283427;
+	["key"] = "iR7BTiDYPIv9QgYe";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:27";
+		["stamp"] = "2026-02-16T23:10:27Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283427;
+	["key"] = "YiMx_4evfVjxMNjd";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:27";
+		["stamp"] = "2026-02-16T23:10:27Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283427;
+	["key"] = "xc3VqsqquajgGZWN";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:27";
+		["stamp"] = "2026-02-16T23:10:27Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"f";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "participant";
+				["affiliation"] = "none";
+				["jid"] = "ayse@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283427;
+	["key"] = "mKpIm4xeWA9gVGvh";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/ayse";
+		["stamp_legacy"] = "20260216T23:10:27";
+		["stamp"] = "2026-02-16T23:10:27Z";
+		["type"] = "groupchat";
+	};
+});
+item({
+	{
+		"Sa";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		{
+			["attr"] = {
+				["role"] = "moderator";
+				["affiliation"] = "owner";
+				["jid"] = "emre@localhost";
+			};
+			["name"] = "item";
+		};
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/muc#user";
+		};
+		["name"] = "x";
+	};
+	["when"] = 1771283763;
+	["key"] = "byg1ksniW0BzVOMc";
+	["name"] = "message";
+	["with"] = "message<groupchat";
+	["attr"] = {
+		["from"] = "general@conference.localhost/emre";
+		["stamp_legacy"] = "20260216T23:16:03";
+		["stamp"] = "2026-02-16T23:16:03Z";
+		["type"] = "groupchat";
+	};
+});

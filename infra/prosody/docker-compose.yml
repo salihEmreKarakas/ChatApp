@@ -1,0 +1,14 @@
+services:
+  prosody:
+    image: prosody/prosody:latest
+    container_name: prosody
+    user: "prosody"
+    restart: "no"
+    ports:
+      - "15222:5222"
+      - "15280:5280"
+    volumes:
+      - ./data:/var/lib/prosody
+      - ./config/prosody.cfg.lua:/etc/prosody/prosody.cfg.lua:ro
+      - ./certs:/etc/prosody/certs:ro
+    entrypoint: ["/usr/bin/prosody", "-F"]

@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Chat App</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+      height: -webkit-fill-available;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f0f2f5;
+      height: 100vh;
+      height: -webkit-fill-available;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+      height: -webkit-fill-available;
+      max-width: 1600px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 350px;
+      background: white;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .sidebar-header h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4444;
+    }
+
+    .status-dot.connected {
+      background: #4caf50;
+    }
+
+    .login-section {
+      padding: 20px;
+      background: #fafafa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .login-section.hidden {
+      display: none;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .btn-secondary:hover {
+      background: #ececec;
+    }
+
+    /* Contacts */
+    .contacts-section {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      min-height: 0;
+    }
+
+    .contact-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .contact-item:hover {
+      background: #f7f7f7;
+    }
+
+    .contact-item.active {
+      background: #e3f2fd;
+    }
+
+    .contact-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .contact-info {
+      flex: 1;
+    }
+
+    .contact-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #111;
+    }
+
+    .contact-status {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .unread-badge {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .contact-item {
+      position: relative;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: #f7f7f7;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px 24px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      grid-row: 1;
+    }
+
+    .chat-header-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .chat-header-subtitle {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #f5f5f5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: #e8e8e8;
+      transform: scale(1.05);
+    }
+
+    .btn-icon.video {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-icon.video:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-icon.menu-toggle {
+      display: none;
+    }
+
+    /* Sidebar Backdrop */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9;
+    }
+
+    .sidebar-backdrop.active {
+      display: block;
+    }
+
+    /* Messages */
+    .messages-container {
+      grid-row: 2;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+      min-height: 0;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      max-width: 70%;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.sent {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message-bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .message.received .message-bubble {
+      background: white;
+      color: #111;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .message.sent .message-bubble {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .message-sender {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .system-message {
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      padding: 8px 0;
+    }
+
+    /* Input Area */
+    .input-area {
+      grid-row: 3;
+      padding: 16px 24px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      background: white;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .input-wrapper input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #667eea;
+    }
+
+    .btn-send {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-send:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Video Container */
+    #videoContainer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 1000;
+    }
+
+    #videoContainer.active {
+      display: block;
+    }
+
+    #jitsiMeet {
+      width: 100%;
+      height: 100%;
+    }
+
+    #closeVideo {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1001;
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 24px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    #closeVideo:hover {
+      background: #ff6666;
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        overflow: hidden;
+      }
+
+      .sidebar {
+        width: 85%;
+        max-width: 350px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        height: 100vh;
+        height: -webkit-fill-available;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .app-container {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .btn-icon.menu-toggle {
+        display: flex;
+      }
+
+      .chat-area {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        height: 100vh;
+        height: -webkit-fill-available;
+      }
+
+      .chat-header {
+        padding: 12px 16px;
+      }
+
+      .messages-container {
+        padding: 12px;
+        padding-bottom: 20px;
+        overflow-y: auto;
+      }
+
+      .input-area {
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      }
+
+      .message {
+        max-width: 85%;
+      }
+
+      .contact-item {
+        padding: 12px 16px;
+      }
+
+      .sidebar-header {
+        padding: 16px;
+      }
+
+      .login-section {
+        padding: 16px;
+      }
+
+      .input-wrapper {
+        width: 100%;
+      }
+
+      .input-wrapper input {
+        font-size: 16px;
+        -webkit-appearance: none;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    /* Add Contact Section */
+    .add-contact-section {
+      padding: 12px 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .btn-add-contact {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add-contact:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f5f5f5;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-footer .btn {
+      width: auto;
+      padding: 10px 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Mobile sidebar backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>💬 Chat App</h1>
+        <div class="connection-status">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">Bağlantı Yok</span>
+        </div>
+      </div>
+
+      <div class="login-section" id="loginSection">
+        <div class="input-group">
+          <label for="jid">Kullanıcı Adı (JID)</label>
+          <input id="jid" value="emre@localhost" autocomplete="off" />
+        </div>
+
+        <div class="input-group">
+          <label for="pass">Şifre</label>
+          <input id="pass" type="password" value="123456" autocomplete="off" />
+        </div>
+
+        <button id="btnConnect" type="button" class="btn btn-primary">Bağlan</button>
+        <button id="btnDisconnect" type="button" class="btn btn-secondary" style="display:none;">Bağlantıyı Kes</button>
+      </div>
+
+      <div class="add-contact-section">
+        <button class="btn btn-add-contact" id="btnAddContact">➕ Kişi Ekle</button>
+      </div>
+
+      <div class="contacts-section" id="contactsList">
+        <!-- Contacts will be dynamically loaded here -->
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <button class="btn-icon menu-toggle" id="menuToggle">☰</button>
+          <div class="contact-avatar" id="chatAvatar">👤</div>
+          <div>
+            <div class="chat-header-title" id="chatTitle">Sohbet Seçin</div>
+            <div class="chat-header-subtitle" id="chatSubtitle">Bir kişi seçin</div>
+          </div>
+        </div>
+
+        <div class="chat-actions">
+          <button class="btn-icon video" id="btnVideoCall" title="Video Arama">📹</button>
+        </div>
+      </div>
+
+      <div class="messages-container" id="messagesContainer">
+        <div class="system-message">Sohbete başlamak için bir mesaj gönderin</div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-wrapper">
+          <input type="text" id="messageInput" placeholder="Mesaj yazın..." />
+          <button class="btn-send" id="btnSend">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video call container -->
+  <div id="videoContainer">
+    <button id="closeVideo">✕ Görüşmeyi Bitir</button>
+    <div id="jitsiMeet"></div>
+  </div>
+
+  <!-- Add Contact Modal -->
+  <div id="addContactModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Yeni Kişi Ekle</h2>
+        <button class="modal-close" id="closeModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label for="contactJid">Kullanıcı JID</label>
+          <input type="text" id="contactJid" placeholder="örnek: emre@localhost" />
+        </div>
+        <div class="input-group">
+          <label for="contactName">İsim</label>
+          <input type="text" id="contactName" placeholder="örnek: Emre" />
+        </div>
+        <div class="input-group">
+          <label>
+            <input type="checkbox" id="contactIsRoom" />
+            Grup odası
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelContact">İptal</button>
+        <button class="btn btn-primary" id="btnSaveContact">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./strophe.umd.min.js"></script>
+  <script src="https://meet.jit.si/external_api.js"></script>
+  <script src="./app.js?v=3"></script>
+</body>
+</html>

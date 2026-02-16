@@ -13,3 +13,16 @@ dist/
 .DS_Store
 .vscode/
 
+# Claude Code
+.claude/
+
+# Tunneling tools
+cloudflared.exe
+cloudflared.log
+ngrok.exe
+ngrok.log
+ngrok.zip
+ngrok_output.txt
+
+# Logs
+*.log
