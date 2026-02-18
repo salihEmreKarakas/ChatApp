@@ -228,6 +228,15 @@ class XMPPService extends EventEmitter {
       return;
     }
 
+    // Call signaling
+    const callEl = this._getEl(msg, "call");
+    if (callEl && callEl.getAttribute("xmlns") === "urn:app:call") {
+      const action = callEl.getAttribute("action");
+      const room = callEl.getAttribute("room");
+      this.emit("call", { from: fromJid, action, room });
+      return;
+    }
+
     if (this._getEl(msg, "composing")) {
       this.emit("chatState", { from: fromJid, state: "composing" });
       return;
@@ -245,6 +254,9 @@ class XMPPService extends EventEmitter {
 
     const bodyText = this._getText(msg, "body");
     if (bodyText) {
+      // Skip call signaling fallback bodies
+      if (bodyText.startsWith("📹") || bodyText.startsWith("📵")) return;
+
       const messageId = msg.getAttribute("id") || "msg_" + Date.now();
       if (type === "groupchat") {
         const sender = from.split("/")[1] || fromJid;
@@ -365,6 +377,26 @@ class XMPPService extends EventEmitter {
     if (!this.connected) return;
     this._sendRaw(
       '<iq xmlns="jabber:client" type="set" id="mam1"><query xmlns="urn:xmpp:mam:2"><x xmlns="jabber:x:data" type="submit"><field var="FORM_TYPE" type="hidden"><value>urn:xmpp:mam:2</value></field></x><set xmlns="http://jabber.org/protocol/rsm"><max>100</max><before/></set></query></iq>'
+    );
+  }
+
+  sendCallInvite(toJid, roomName) {
+    if (!this.connected) return;
+    this._sendRaw(
+      `<message xmlns="jabber:client" to="${toJid}" type="chat">` +
+      `<call xmlns="urn:app:call" action="invite" room="${escapeXml(roomName)}"/>` +
+      `<body>📹 Görüntülü görüşme daveti gönderildi</body>` +
+      `</message>`
+    );
+  }
+
+  sendCallReject(toJid, roomName) {
+    if (!this.connected) return;
+    this._sendRaw(
+      `<message xmlns="jabber:client" to="${toJid}" type="chat">` +
+      `<call xmlns="urn:app:call" action="reject" room="${escapeXml(roomName)}"/>` +
+      `<body>📵 Görüntülü görüşme reddedildi</body>` +
+      `</message>`
     );
   }
 

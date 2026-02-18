@@ -13,6 +13,7 @@ const initialState = {
   presenceStates: {},
   typingStates: {},
   currentChat: null,
+  incomingCall: null, // { from, room } when someone calls us
 };
 
 function chatReducer(state, action) {
@@ -94,6 +95,12 @@ function chatReducer(state, action) {
         typingStates: { ...state.typingStates, [jid]: typingState },
       };
     }
+
+    case "SET_INCOMING_CALL":
+      return { ...state, incomingCall: action.payload };
+
+    case "CLEAR_INCOMING_CALL":
+      return { ...state, incomingCall: null };
 
     default:
       return state;
@@ -265,6 +272,15 @@ export function ChatProvider({ children }) {
       chatContacts.forEach((c) => xmpp.subscribeToContact(c.jid));
     };
 
+    const onCall = ({ from, action, room }) => {
+      if (action === "invite") {
+        dispatch({ type: "SET_INCOMING_CALL", payload: { from, room } });
+      } else if (action === "reject") {
+        // Remote end rejected our call — could show a notification here
+        dispatch({ type: "CLEAR_INCOMING_CALL" });
+      }
+    };
+
     xmpp.on("connected", onConnected);
     xmpp.on("disconnected", onDisconnected);
     xmpp.on("message", onMessage);
@@ -274,6 +290,7 @@ export function ChatProvider({ children }) {
     xmpp.on("presence", onPresence);
     xmpp.on("mamMessage", onMAMMessage);
     xmpp.on("rosterResult", onRosterResult);
+    xmpp.on("call", onCall);
 
     return () => {
       xmpp.off("connected", onConnected);
@@ -285,6 +302,7 @@ export function ChatProvider({ children }) {
       xmpp.off("presence", onPresence);
       xmpp.off("mamMessage", onMAMMessage);
       xmpp.off("rosterResult", onRosterResult);
+      xmpp.off("call", onCall);
     };
   }, []);
 

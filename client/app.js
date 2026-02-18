@@ -395,6 +395,16 @@ function updateStatus(text, connected = false) {
   }
 }
 
+function addSystemMessage(text) {
+  const container = document.getElementById("messagesContainer");
+  if (!container) return;
+  const div = document.createElement("div");
+  div.className = "system-message";
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
 function addMessageToUI(from, text, isSent = false, showSender = false, messageId = null, seen = null) {
   const container = document.getElementById("messagesContainer");
   if (!container) return;
@@ -544,11 +554,30 @@ function onChatMessage(msg) {
     return true;
   }
 
+  // Handle call signaling
+  const callEl = msg.getElementsByTagName("call")[0];
+  if (callEl && callEl.getAttribute("xmlns") === "urn:app:call") {
+    const action = callEl.getAttribute("action");
+    const room = callEl.getAttribute("room");
+    if (action === "invite") {
+      handleCallInvite(fromJid, room);
+    } else if (action === "reject") {
+      addSystemMessage("📵 " + (contacts.find(c => c.jid === fromJid)?.name || fromJid.split("@")[0]) + " aramayı reddetti.");
+    }
+    return true;
+  }
+
   // Handle regular message body first
   const body = msg.getElementsByTagName("body")[0];
   if (body) {
     const text = Strophe.getText(body);
     const messageId = msg.getAttribute("id");
+
+    // Skip call-related system messages that come with a <call> element
+    if (text.startsWith("📹") || text.startsWith("📵")) {
+      // These are fallback bodies for call signaling, skip rendering
+      return true;
+    }
 
     // Add message to history and show if in current chat
     addMessage(fromJid, from, text, false, false, messageId); // false = don't show sender for direct chat
@@ -997,28 +1026,42 @@ function saveNewContact() {
 }
 
 // --- Video Call ---
-function startVideoCall() {
-  if (!currentChat) {
-    alert("Önce bir kişi seçin!");
-    return;
+let pendingCallRoom = null; // room name from incoming invite
+
+function buildCallRoomName(jid1, jid2) {
+  return [jid1, jid2].sort().join("-").replace(/@/g, "_").replace(/\./g, "_");
+}
+
+function startVideoCall(roomName) {
+  if (!roomName) {
+    if (!currentChat) {
+      alert("Önce bir kişi seçin!");
+      return;
+    }
+    if (currentChat.type === "room") {
+      // Group call: use room JID as room name
+      roomName = currentChat.jid.replace(/@/g, "_").replace(/\./g, "_");
+    } else {
+      roomName = buildCallRoomName(myJid, currentChat.jid);
+    }
   }
 
-  if (currentChat.type === "room") {
-    alert("Grup görüşmesi için tüm üyelerin katılması gerekir!");
-    return;
+  console.log(`Starting video call, room: ${roomName}`);
+
+  // Show video panel
+  const panel = document.getElementById("videoPanel");
+  panel.classList.add("active");
+
+  const titleEl = document.getElementById("videoCallTitle");
+  if (titleEl && currentChat) titleEl.textContent = currentChat.name || currentChat.jid.split("@")[0];
+
+  // Dispose previous instance if any
+  if (jitsiApi) {
+    jitsiApi.dispose();
+    jitsiApi = null;
   }
 
-  const myJid = safeVal("jid").trim();
-  const users = [myJid, currentChat.jid].sort();
-  const roomName = users.join("-").replace(/@/g, "_").replace(/\./g, "_");
-
-  console.log(`Starting video call with ${currentChat.jid}`);
-
-  // Show video container
-  const container = document.getElementById("videoContainer");
-  container.classList.add("active");
-
-  // Initialize Jitsi Meet
+  // Initialize Jitsi Meet embedded
   const domain = "meet.jit.si";
   const options = {
     roomName: roomName,
@@ -1026,23 +1069,69 @@ function startVideoCall() {
     height: "100%",
     parentNode: document.getElementById("jitsiMeet"),
     userInfo: {
-      displayName: myJid.split("@")[0]
+      displayName: myJid ? myJid.split("@")[0] : "User"
+    },
+    configOverwrite: {
+      startWithAudioMuted: false,
+      startWithVideoMuted: false,
+      disableDeepLinking: true
+    },
+    interfaceConfigOverwrite: {
+      SHOW_JITSI_WATERMARK: false,
+      SHOW_BRAND_WATERMARK: false,
+      TOOLBAR_BUTTONS: [
+        "microphone", "camera", "hangup", "chat",
+        "tileview", "fullscreen"
+      ]
     }
   };
 
   jitsiApi = new JitsiMeetExternalAPI(domain, options);
 
-  // Send video call invite
-  const inviteMsg = `📹 Video görüşmesi başlatıldı`;
-  const stanza = $msg({ to: currentChat.jid, type: "chat" }).c("body").t(inviteMsg);
-  if (conn && conn.authenticated) {
-    conn.send(stanza.tree());
+  jitsiApi.addEventListener("readyToClose", () => {
+    closeVideoCall();
+  });
+}
+
+function sendCallInvite(toJid, roomName) {
+  if (!conn || !conn.authenticated) return;
+  const stanza = $msg({ to: toJid, type: "chat" })
+    .c("call", { xmlns: "urn:app:call", action: "invite", room: roomName }).up()
+    .c("body").t("📹 Görüntülü görüşme daveti gönderildi");
+  conn.send(stanza.tree());
+}
+
+function sendCallReject(toJid, roomName) {
+  if (!conn || !conn.authenticated) return;
+  const stanza = $msg({ to: toJid, type: "chat" })
+    .c("call", { xmlns: "urn:app:call", action: "reject", room: roomName }).up()
+    .c("body").t("📵 Görüntülü görüşme reddedildi");
+  conn.send(stanza.tree());
+}
+
+function handleCallInvite(fromJid, roomName) {
+  pendingCallRoom = roomName;
+
+  const banner = document.getElementById("incomingCallBanner");
+  const fromEl = document.getElementById("incomingCallFrom");
+  if (fromEl) {
+    const contact = contacts.find(c => c.jid === fromJid);
+    fromEl.textContent = (contact ? contact.name : fromJid.split("@")[0]) + " arıyor...";
   }
+  if (banner) banner.classList.add("active");
+
+  // Auto-dismiss after 30 seconds
+  setTimeout(() => {
+    if (banner && banner.classList.contains("active")) {
+      banner.classList.remove("active");
+      pendingCallRoom = null;
+    }
+  }, 30000);
 }
 
 function closeVideoCall() {
-  const container = document.getElementById("videoContainer");
-  container.classList.remove("active");
+  const panel = document.getElementById("videoPanel");
+  panel.classList.remove("active");
 
   if (jitsiApi) {
     jitsiApi.dispose();
@@ -1110,16 +1199,49 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Video call button
+  // Video call button — send invite then open panel
   const btnVideoCall = document.getElementById("btnVideoCall");
   if (btnVideoCall) {
-    btnVideoCall.addEventListener("click", startVideoCall);
+    btnVideoCall.addEventListener("click", () => {
+      if (!currentChat) { alert("Önce bir kişi seçin!"); return; }
+      let roomName;
+      if (currentChat.type === "room") {
+        roomName = currentChat.jid.replace(/@/g, "_").replace(/\./g, "_");
+      } else {
+        roomName = buildCallRoomName(myJid, currentChat.jid);
+        sendCallInvite(currentChat.jid, roomName);
+      }
+      startVideoCall(roomName);
+    });
   }
 
   // Close video button
   const btnCloseVideo = document.getElementById("closeVideo");
   if (btnCloseVideo) {
     btnCloseVideo.addEventListener("click", closeVideoCall);
+  }
+
+  // Accept incoming call
+  const btnAcceptCall = document.getElementById("btnAcceptCall");
+  if (btnAcceptCall) {
+    btnAcceptCall.addEventListener("click", () => {
+      const banner = document.getElementById("incomingCallBanner");
+      if (banner) banner.classList.remove("active");
+      if (pendingCallRoom) {
+        startVideoCall(pendingCallRoom);
+        pendingCallRoom = null;
+      }
+    });
+  }
+
+  // Reject incoming call
+  const btnRejectCall = document.getElementById("btnRejectCall");
+  if (btnRejectCall) {
+    btnRejectCall.addEventListener("click", () => {
+      const banner = document.getElementById("incomingCallBanner");
+      if (banner) banner.classList.remove("active");
+      pendingCallRoom = null;
+    });
   }
 
   // Menu toggle button (mobile)

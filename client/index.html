@@ -248,13 +248,23 @@
       position: relative;
     }
 
-    /* Chat Area */
+    /* Chat Area — split-pane (chat left, video right) */
     .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      background: #f7f7f7;
+      height: 100%;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* Chat content pane (left side) */
+    .chat-content {
       flex: 1;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      background: #f7f7f7;
-      height: 100%;
+      min-width: 0;
       overflow: hidden;
     }
 
@@ -474,41 +484,57 @@
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
-    /* Video Container */
-    #videoContainer {
+    /* Video Panel (embedded, right pane) */
+    #videoPanel {
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 1000;
+      flex-direction: column;
+      width: 420px;
+      min-width: 280px;
+      border-left: 2px solid #667eea;
+      background: #0d0d1a;
+      position: relative;
+      flex-shrink: 0;
     }
 
-    #videoContainer.active {
-      display: block;
+    #videoPanel.active {
+      display: flex;
+    }
+
+    .video-panel-header {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .video-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     #jitsiMeet {
-      width: 100%;
-      height: 100%;
+      flex: 1;
+      min-height: 0;
     }
 
     #closeVideo {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 1001;
       background: #ff4444;
       color: white;
       border: none;
-      padding: 12px 24px;
+      padding: 6px 14px;
       cursor: pointer;
       font-weight: 600;
-      border-radius: 24px;
-      font-size: 14px;
+      border-radius: 16px;
+      font-size: 12px;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     #closeVideo:hover {
@@ -516,7 +542,92 @@
       transform: scale(1.05);
     }
 
+    /* Incoming call notification */
+    #incomingCallBanner {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      z-index: 3000;
+      min-width: 260px;
+      border-left: 4px solid #4caf50;
+      animation: slideInRight 0.3s ease;
+    }
+
+    #incomingCallBanner.active {
+      display: block;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .call-banner-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .call-banner-subtitle {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .call-banner-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-accept-call {
+      flex: 1;
+      padding: 8px 0;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-accept-call:hover { background: #43a047; }
+
+    .btn-reject-call {
+      flex: 1;
+      padding: 8px 0;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-reject-call:hover { background: #ff6666; }
+
     /* Responsive */
+    @media (max-width: 1100px) {
+      /* On smaller screens, video panel overlaps as fixed panel */
+      #videoPanel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        border-left: none;
+        z-index: 500;
+      }
+    }
+
     @media (max-width: 768px) {
       body {
         overflow: hidden;
@@ -769,40 +880,58 @@
       </div>
     </div>
 
-    <!-- Chat Area -->
+    <!-- Chat Area (split-pane: chat left, video right) -->
     <div class="chat-area">
-      <div class="chat-header">
-        <div class="chat-header-info">
-          <button class="btn-icon menu-toggle" id="menuToggle">☰</button>
-          <div class="contact-avatar" id="chatAvatar">👤</div>
-          <div>
-            <div class="chat-header-title" id="chatTitle">Sohbet Seçin</div>
-            <div class="chat-header-subtitle" id="chatSubtitle">Bir kişi seçin</div>
+
+      <!-- Chat content (left pane) -->
+      <div class="chat-content">
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <button class="btn-icon menu-toggle" id="menuToggle">☰</button>
+            <div class="contact-avatar" id="chatAvatar">👤</div>
+            <div>
+              <div class="chat-header-title" id="chatTitle">Sohbet Seçin</div>
+              <div class="chat-header-subtitle" id="chatSubtitle">Bir kişi seçin</div>
+            </div>
+          </div>
+
+          <div class="chat-actions">
+            <button class="btn-icon video" id="btnVideoCall" title="Video Arama">📹</button>
           </div>
         </div>
 
-        <div class="chat-actions">
-          <button class="btn-icon video" id="btnVideoCall" title="Video Arama">📹</button>
+        <div class="messages-container" id="messagesContainer">
+          <div class="system-message">Sohbete başlamak için bir mesaj gönderin</div>
+        </div>
+
+        <div class="input-area">
+          <div class="input-wrapper">
+            <input type="text" id="messageInput" placeholder="Mesaj yazın..." />
+            <button class="btn-send" id="btnSend">➤</button>
+          </div>
         </div>
       </div>
 
-      <div class="messages-container" id="messagesContainer">
-        <div class="system-message">Sohbete başlamak için bir mesaj gönderin</div>
+      <!-- Video panel (right pane, hidden by default) -->
+      <div id="videoPanel">
+        <div class="video-panel-header">
+          <div class="video-panel-title">📹 <span id="videoCallTitle">Görüntülü Görüşme</span></div>
+          <button id="closeVideo">✕ Bitir</button>
+        </div>
+        <div id="jitsiMeet"></div>
       </div>
 
-      <div class="input-area">
-        <div class="input-wrapper">
-          <input type="text" id="messageInput" placeholder="Mesaj yazın..." />
-          <button class="btn-send" id="btnSend">➤</button>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- Video call container -->
-  <div id="videoContainer">
-    <button id="closeVideo">✕ Görüşmeyi Bitir</button>
-    <div id="jitsiMeet"></div>
+  <!-- Incoming call notification banner -->
+  <div id="incomingCallBanner">
+    <div class="call-banner-title">📹 Gelen Arama</div>
+    <div class="call-banner-subtitle" id="incomingCallFrom"></div>
+    <div class="call-banner-actions">
+      <button class="btn-accept-call" id="btnAcceptCall">✓ Kabul Et</button>
+      <button class="btn-reject-call" id="btnRejectCall">✕ Reddet</button>
+    </div>
   </div>
 
   <!-- Add Contact Modal -->
@@ -838,7 +967,7 @@
   <!-- Scripts -->
   <script src="./strophe.umd.min.js"></script>
   <script src="https://meet.jit.si/external_api.js"></script>
-  <script src="./app.js?v=4"></script>
+  <script src="./app.js?v=5"></script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then(() => {

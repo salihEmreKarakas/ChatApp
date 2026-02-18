@@ -11,11 +11,29 @@ import {
 } from "react-native";
 import { useChat } from "../context/ChatContext";
 import ContactItem from "../components/ContactItem";
+import VideoCallModal from "../components/VideoCallModal";
 import xmpp from "../services/xmpp";
 
 export default function ContactsScreen({ navigation }) {
   const { state, dispatch } = useChat();
   const [modalVisible, setModalVisible] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [videoRoom, setVideoRoom] = useState(null);
+
+  const incomingCall = state.incomingCall;
+
+  const handleAcceptCall = () => {
+    if (!incomingCall) return;
+    dispatch({ type: "CLEAR_INCOMING_CALL" });
+    setVideoRoom(incomingCall.room);
+    setVideoVisible(true);
+  };
+
+  const handleRejectCall = () => {
+    if (!incomingCall) return;
+    xmpp.sendCallReject(incomingCall.from, incomingCall.room);
+    dispatch({ type: "CLEAR_INCOMING_CALL" });
+  };
   const [newJid, setNewJid] = useState("");
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("chat");
@@ -107,6 +125,36 @@ export default function ContactsScreen({ navigation }) {
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
+      {/* Incoming call banner */}
+      {incomingCall && (
+        <View style={styles.callBanner}>
+          <Text style={styles.callBannerTitle}>📹 Gelen Arama</Text>
+          <Text style={styles.callBannerSub}>
+            {(state.contacts.find(c => c.jid === incomingCall.from)?.name ||
+              incomingCall.from.split("@")[0])} arıyor...
+          </Text>
+          <View style={styles.callBannerActions}>
+            <TouchableOpacity style={styles.acceptBtn} onPress={handleAcceptCall}>
+              <Text style={styles.acceptBtnText}>✓ Kabul Et</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rejectBtn} onPress={handleRejectCall}>
+              <Text style={styles.rejectBtnText}>✕ Reddet</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* Video Call Modal */}
+      <VideoCallModal
+        visible={videoVisible}
+        roomName={videoRoom}
+        displayName={state.myJid ? state.myJid.split("@")[0] : "User"}
+        onClose={() => {
+          setVideoVisible(false);
+          setVideoRoom(null);
+        }}
+      />
+
       {/* Add Contact Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
@@ -169,6 +217,43 @@ export default function ContactsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white" },
+  // Incoming call banner
+  callBanner: {
+    position: "absolute",
+    bottom: 90,
+    left: 16,
+    right: 16,
+    backgroundColor: "white",
+    borderLeftWidth: 4,
+    borderLeftColor: "#4caf50",
+    padding: 14,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
+    zIndex: 100,
+  },
+  callBannerTitle: { fontSize: 15, fontWeight: "700", marginBottom: 2 },
+  callBannerSub: { fontSize: 13, color: "#555", marginBottom: 10 },
+  callBannerActions: { flexDirection: "row", gap: 8 },
+  acceptBtn: {
+    flex: 1,
+    backgroundColor: "#4caf50",
+    borderRadius: 20,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  acceptBtnText: { color: "white", fontWeight: "700", fontSize: 13 },
+  rejectBtn: {
+    flex: 1,
+    backgroundColor: "#ff4444",
+    borderRadius: 20,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  rejectBtnText: { color: "white", fontWeight: "700", fontSize: 13 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

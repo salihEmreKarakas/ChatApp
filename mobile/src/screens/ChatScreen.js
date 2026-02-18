@@ -11,18 +11,22 @@ import {
 } from "react-native";
 import { useChat } from "../context/ChatContext";
 import MessageBubble from "../components/MessageBubble";
+import VideoCallModal from "../components/VideoCallModal";
 import xmpp from "../services/xmpp";
 
 export default function ChatScreen({ route, navigation }) {
   const { contact } = route.params;
   const { state, dispatch } = useChat();
   const [text, setText] = useState("");
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [videoRoom, setVideoRoom] = useState(null);
   const flatListRef = useRef(null);
   const typingTimerRef = useRef(null);
 
   const messages = state.messageHistory[contact.jid] || [];
   const isTyping = state.typingStates[contact.jid] === "composing";
   const isOnline = state.presenceStates[contact.jid] === "online";
+  const incomingCall = state.incomingCall;
 
   // Mark as current chat and clear unread
   useEffect(() => {
@@ -115,6 +119,40 @@ export default function ChatScreen({ route, navigation }) {
     [contact.jid, contact.type]
   );
 
+  const buildCallRoomName = (jid1, jid2) =>
+    [jid1, jid2]
+      .sort()
+      .join("-")
+      .replace(/@/g, "_")
+      .replace(/\./g, "_");
+
+  const handleStartCall = () => {
+    if (contact.type === "room") {
+      // Group call uses room JID as room name
+      const room = contact.jid.replace(/@/g, "_").replace(/\./g, "_");
+      setVideoRoom(room);
+      setVideoVisible(true);
+    } else {
+      const room = buildCallRoomName(state.myJid, contact.jid);
+      xmpp.sendCallInvite(contact.jid, room);
+      setVideoRoom(room);
+      setVideoVisible(true);
+    }
+  };
+
+  const handleAcceptCall = () => {
+    if (!incomingCall) return;
+    dispatch({ type: "CLEAR_INCOMING_CALL" });
+    setVideoRoom(incomingCall.room);
+    setVideoVisible(true);
+  };
+
+  const handleRejectCall = () => {
+    if (!incomingCall) return;
+    xmpp.sendCallReject(incomingCall.from, incomingCall.room);
+    dispatch({ type: "CLEAR_INCOMING_CALL" });
+  };
+
   const getSubtitle = () => {
     if (isTyping) return "yaziyor...";
     if (contact.type === "room") return "Grup sohbeti";
@@ -156,7 +194,31 @@ export default function ChatScreen({ route, navigation }) {
             {getSubtitle()}
           </Text>
         </View>
+
+        {/* Video call button */}
+        <TouchableOpacity style={styles.videoBtn} onPress={handleStartCall}>
+          <Text style={styles.videoBtnText}>📹</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Incoming call banner */}
+      {incomingCall && (
+        <View style={styles.callBanner}>
+          <Text style={styles.callBannerTitle}>📹 Gelen Arama</Text>
+          <Text style={styles.callBannerSub}>
+            {(state.contacts.find(c => c.jid === incomingCall.from)?.name ||
+              incomingCall.from.split("@")[0])} arıyor...
+          </Text>
+          <View style={styles.callBannerActions}>
+            <TouchableOpacity style={styles.acceptBtn} onPress={handleAcceptCall}>
+              <Text style={styles.acceptBtnText}>✓ Kabul Et</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rejectBtn} onPress={handleRejectCall}>
+              <Text style={styles.rejectBtnText}>✕ Reddet</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* Messages */}
       <FlatList
@@ -200,6 +262,17 @@ export default function ChatScreen({ route, navigation }) {
           <Text style={styles.sendBtnText}>Gonder</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Video Call Modal */}
+      <VideoCallModal
+        visible={videoVisible}
+        roomName={videoRoom}
+        displayName={state.myJid ? state.myJid.split("@")[0] : "User"}
+        onClose={() => {
+          setVideoVisible(false);
+          setVideoRoom(null);
+        }}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -241,6 +314,48 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: "700", color: "white" },
   headerSubtitle: { fontSize: 13, color: "rgba(255,255,255,0.7)" },
   headerTyping: { color: "#b3e5fc", fontStyle: "italic" },
+  videoBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoBtnText: { fontSize: 20 },
+  // Incoming call banner
+  callBanner: {
+    backgroundColor: "white",
+    borderLeftWidth: 4,
+    borderLeftColor: "#4caf50",
+    padding: 14,
+    margin: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  callBannerTitle: { fontSize: 15, fontWeight: "700", marginBottom: 2 },
+  callBannerSub: { fontSize: 13, color: "#555", marginBottom: 10 },
+  callBannerActions: { flexDirection: "row", gap: 8 },
+  acceptBtn: {
+    flex: 1,
+    backgroundColor: "#4caf50",
+    borderRadius: 20,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  acceptBtnText: { color: "white", fontWeight: "700", fontSize: 13 },
+  rejectBtn: {
+    flex: 1,
+    backgroundColor: "#ff4444",
+    borderRadius: 20,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  rejectBtnText: { color: "white", fontWeight: "700", fontSize: 13 },
   messageList: { flex: 1 },
   messageContent: { paddingVertical: 10 },
   typingBar: {
