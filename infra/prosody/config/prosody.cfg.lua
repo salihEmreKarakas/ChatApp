@@ -16,7 +16,12 @@ modules_enabled = {
   "websocket";
   "bosh";
   "admin_adhoc";
+  "mam";
 }
+
+-- MAM (Message Archive Management) settings
+archive_expires_after = "1w" -- Keep messages for 1 week
+default_archive_policy = true -- Archive messages by default
 
 allow_registration = true
 
@@ -55,6 +60,8 @@ http_cors_override = {
   };
 }
 consider_bosh_secure = true
+consider_websocket_secure = true
+allow_unencrypted_plain_auth = true
 bosh_max_inactivity = 120
 
 VirtualHost "localhost"

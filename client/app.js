@@ -12,15 +12,118 @@ let typingTimer = null; // Timer for paused state
 let presenceStates = {}; // { jid: 'online' | 'offline' }
 
 // --- Message History & Notifications ---
+function getStorageKey(base) {
+  return myJid ? `${base}_${myJid}` : base;
+}
+
 function loadMessageHistory() {
-  const saved = localStorage.getItem("xmpp_message_history");
+  const saved = localStorage.getItem(getStorageKey("xmpp_message_history"));
   if (saved) {
     messageHistory = JSON.parse(saved);
+  } else {
+    messageHistory = {};
   }
 }
 
 function saveMessageHistory() {
-  localStorage.setItem("xmpp_message_history", JSON.stringify(messageHistory));
+  localStorage.setItem(getStorageKey("xmpp_message_history"), JSON.stringify(messageHistory));
+}
+
+// --- MAM (Message Archive Management) ---
+function fetchMAMMessages() {
+  if (!conn || !conn.authenticated) return;
+
+  console.log("Fetching MAM archive...");
+
+  const iq = $iq({ type: "set" })
+    .c("query", { xmlns: "urn:xmpp:mam:2" })
+    .c("x", { xmlns: "jabber:x:data", type: "submit" })
+    .c("field", { var: "FORM_TYPE", type: "hidden" })
+    .c("value").t("urn:xmpp:mam:2").up().up()
+    .up()
+    .c("set", { xmlns: "http://jabber.org/protocol/rsm" })
+    .c("max").t("100").up()
+    .c("before"); // Get latest messages (reverse order)
+
+  // Listen for MAM result messages
+  conn.addHandler(onMAMMessage, "urn:xmpp:mam:2", "message");
+
+  conn.sendIQ(iq, (result) => {
+    console.log("MAM query complete");
+    // Re-render current chat if open
+    if (currentChat) {
+      loadChatHistory(currentChat.jid);
+    }
+  }, (error) => {
+    console.log("MAM not supported or error:", error);
+  });
+}
+
+function onMAMMessage(msg) {
+  const result = msg.getElementsByTagName("result")[0];
+  if (!result) return true;
+
+  const forwarded = result.getElementsByTagName("forwarded")[0];
+  if (!forwarded) return true;
+
+  const message = forwarded.getElementsByTagName("message")[0];
+  const delay = forwarded.getElementsByTagName("delay")[0];
+
+  if (!message) return true;
+
+  const body = message.getElementsByTagName("body")[0];
+  if (!body) return true;
+
+  const text = Strophe.getText(body);
+  const from = message.getAttribute("from") || "";
+  const to = message.getAttribute("to") || "";
+  const fromJid = from.split("/")[0];
+  const toJid = to.split("/")[0];
+  const messageId = message.getAttribute("id") || result.getAttribute("id");
+
+  const isSent = fromJid === myJid;
+  const contactJid = isSent ? toJid : fromJid;
+
+  // Get timestamp from delay
+  let timestamp = Date.now();
+  if (delay) {
+    const stamp = delay.getAttribute("stamp");
+    if (stamp) timestamp = new Date(stamp).getTime();
+  }
+
+  // Skip if already in history (avoid duplicates)
+  if (messageHistory[contactJid]) {
+    const exists = messageHistory[contactJid].find(m =>
+      m.id === messageId || (m.text === text && Math.abs(m.timestamp - timestamp) < 2000)
+    );
+    if (exists) return true;
+  }
+
+  // Add to history
+  if (!messageHistory[contactJid]) {
+    messageHistory[contactJid] = [];
+  }
+
+  messageHistory[contactJid].push({
+    id: messageId,
+    from: isSent ? myJid : from,
+    text,
+    isSent,
+    showSender: false,
+    timestamp,
+    seen: null
+  });
+
+  // Sort by timestamp
+  messageHistory[contactJid].sort((a, b) => a.timestamp - b.timestamp);
+
+  // Keep last 100
+  if (messageHistory[contactJid].length > 100) {
+    messageHistory[contactJid] = messageHistory[contactJid].slice(-100);
+  }
+
+  saveMessageHistory();
+  return true;
 }
 
 function addToHistory(jid, from, text, isSent, showSender, messageId) {
@@ -273,7 +376,9 @@ function subscribeToContact(jid) {
 
 function subscribeToAllContacts() {
   contacts.forEach(contact => {
-    subscribeToContact(contact.jid);
+    if (contact.type !== "room") {
+      subscribeToContact(contact.jid);
+    }
   });
 }
 
@@ -401,10 +506,10 @@ function getHostForWs() {
   return window.location.hostname || "localhost";
 }
 
-function getBoshUrl() {
+function getXmppUrl() {
   const host = getHostForWs();
-  const protocol = window.location.protocol;
-  return `${protocol}//${host}/http-bind`;
+  const isSecure = window.location.protocol === "https:";
+  return `${isSecure ? "wss" : "ws"}://${host}/xmpp-websocket`;
 }
 
 function normalizeDomainForJid() {
@@ -422,7 +527,10 @@ function safeVal(id) {
 
 // --- Handlers ---
 function onChatMessage(msg) {
-  const from = msg.getAttribute("from");
+  // Skip MAM result wrappers — handled separately by onMAMMessage
+  if (msg.getElementsByTagName("result")[0]) return true;
+
+  const from = msg.getAttribute("from") || "";
   const fromJid = from.split("/")[0]; // Remove resource
 
   // Check for seen receipt
@@ -436,7 +544,20 @@ function onChatMessage(msg) {
     return true;
   }
 
-  // Check for chat state notifications
+  // Handle regular message body first
+  const body = msg.getElementsByTagName("body")[0];
+  if (body) {
+    const text = Strophe.getText(body);
+    const messageId = msg.getAttribute("id");
+
+    // Add message to history and show if in current chat
+    addMessage(fromJid, from, text, false, false, messageId); // false = don't show sender for direct chat
+
+    console.log(`<< [chat] ${from}: ${text}`);
+    return true;
+  }
+
+  // Check for chat state notifications (only when no body)
   const composing = msg.getElementsByTagName("composing")[0];
   const paused = msg.getElementsByTagName("paused")[0];
   const active = msg.getElementsByTagName("active")[0];
@@ -448,18 +569,6 @@ function onChatMessage(msg) {
   if (paused || active) {
     hideTypingIndicator(fromJid);
     return true;
-  }
-
-  // Handle regular message
-  const body = msg.getElementsByTagName("body")[0];
-  if (body) {
-    const text = Strophe.getText(body);
-    const messageId = msg.getAttribute("id");
-
-    // Add message to history and show if in current chat
-    addMessage(fromJid, from, text, false, false, messageId); // false = don't show sender for direct chat
-
-    console.log(`<< [chat] ${from}: ${text}`);
   }
 
   return true;
@@ -500,10 +609,17 @@ function onPresence(pres) {
     return true;
   }
 
+  // Auto-approve subscription requests
+  if (type === "subscribe") {
+    conn.send($pres({ to: fromJid, type: "subscribed" }).tree());
+    conn.send($pres({ to: fromJid, type: "subscribe" }).tree());
+    return true;
+  }
+
   // Update presence state
   if (type === "unavailable") {
     presenceStates[fromJid] = "offline";
-  } else if (type === "available" || !type) {
+  } else if (type === "available" || type === "" || !pres.getAttribute("type")) {
     presenceStates[fromJid] = "online";
   }
 
@@ -523,15 +639,19 @@ function onIq(iq) {
 }
 
 function addHandlers() {
-  conn.addHandler(onChatMessage, null, "message", "chat");
-  conn.addHandler(onGroupMessage, null, "message", "groupchat");
+  // Single catch-all message handler — avoids Strophe.js type-filter issues in WebSocket mode
+  conn.addHandler(function(msg) {
+    const type = msg.getAttribute("type") || "";
+    if (type === "groupchat") return onGroupMessage(msg);
+    return onChatMessage(msg);
+  }, null, "message");
   conn.addHandler(onPresence, null, "presence");
   conn.addHandler(onIq, null, "iq");
 }
 
 // --- Actions ---
 function connect() {
-  const bosh = getBoshUrl();
+  const wsUrl = getXmppUrl();
   const jid = safeVal("jid").trim();
   const pass = safeVal("pass");
 
@@ -541,7 +661,7 @@ function connect() {
   }
 
   updateStatus("Bağlanıyor...", false);
-  conn = new Strophe.Connection(bosh);
+  conn = new Strophe.Connection(wsUrl);
 
   conn.connect(jid, pass, (status) => {
     console.log("Connection status:", status);
@@ -552,8 +672,23 @@ function connect() {
 
     if (status === Strophe.Status.CONNECTED) {
       updateStatus("Bağlı", true);
+
+      // Set global myJid
+      myJid = conn.jid.split("/")[0];
+      console.log("Logged in as:", myJid);
+
       addHandlers();
       conn.send($pres().tree());
+
+      // Load user-specific data
+      loadContacts();
+      loadMessageHistory();
+
+      // Fetch roster from server (contacts synced across devices)
+      fetchRoster();
+
+      // Fetch message history from server (MAM)
+      fetchMAMMessages();
 
       // Subscribe to all contacts for presence updates
       subscribeToAllContacts();
@@ -650,50 +785,106 @@ function joinRoom(roomJid) {
   console.log(`>> [join] ${roomJid} as ${nick}`);
 }
 
-// --- Contact Management ---
+// --- Contact Management (XMPP Roster + localStorage for rooms) ---
 function loadContacts() {
-  const saved = localStorage.getItem("xmpp_contacts");
-  if (saved) {
-    contacts = JSON.parse(saved);
-  } else {
-    // Default contacts
-    contacts = [
-      { jid: "ayse@localhost", name: "Ayse", type: "chat" },
-      { jid: "general@conference.localhost", name: "Genel Oda", type: "room" }
-    ];
-    saveContacts();
-  }
+  // Load rooms from localStorage
+  const savedRooms = localStorage.getItem(getStorageKey("xmpp_rooms"));
+  const rooms = savedRooms ? JSON.parse(savedRooms) : [
+    { jid: "general@conference.localhost", name: "Genel Oda", type: "room" }
+  ];
+
+  // Start with rooms, roster contacts will be added after fetchRoster
+  contacts = rooms;
   renderContacts();
 }
 
-function saveContacts() {
-  localStorage.setItem("xmpp_contacts", JSON.stringify(contacts));
+function saveRooms() {
+  const rooms = contacts.filter(c => c.type === "room");
+  localStorage.setItem(getStorageKey("xmpp_rooms"), JSON.stringify(rooms));
+}
+
+function fetchRoster() {
+  if (!conn || !conn.authenticated) return;
+
+  const iq = $iq({ type: "get" }).c("query", { xmlns: "jabber:iq:roster" });
+  conn.sendIQ(iq, (result) => {
+    const items = result.getElementsByTagName("item");
+    const rosterContacts = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const jid = items[i].getAttribute("jid");
+      const name = items[i].getAttribute("name") || jid.split("@")[0];
+
+      // Remove MUC/conference JIDs from roster — they don't belong there
+      if (jid.includes("conference.")) {
+        const removeIq = $iq({ type: "set" })
+          .c("query", { xmlns: "jabber:iq:roster" })
+          .c("item", { jid: jid, subscription: "remove" });
+        conn.sendIQ(removeIq, () => console.log("Removed conference JID from roster:", jid));
+        continue;
+      }
+
+      rosterContacts.push({ jid, name, type: "chat" });
+    }
+
+    // Merge: keep rooms from localStorage + roster contacts from server
+    const rooms = contacts.filter(c => c.type === "room");
+    contacts = [...rosterContacts, ...rooms];
+    renderContacts();
+
+    // Auto-join all saved rooms
+    rooms.forEach(room => joinRoom(room.jid));
+
+    console.log(`Roster loaded: ${rosterContacts.length} contacts`);
+  });
 }
 
 function addContact(jid, name, type = "chat") {
-  // Check if contact already exists
   const exists = contacts.find(c => c.jid === jid);
   if (exists) {
     alert("Bu kişi zaten ekli!");
     return false;
   }
 
-  contacts.push({ jid, name, type });
-  saveContacts();
-  renderContacts();
-
-  // Subscribe to new contact's presence (if it's a chat, not a room)
-  if (type === "chat") {
-    subscribeToContact(jid);
+  if (type === "room") {
+    // Rooms are stored locally
+    contacts.push({ jid, name, type });
+    saveRooms();
+    renderContacts();
+  } else {
+    // Add to XMPP Roster on server
+    const iq = $iq({ type: "set" })
+      .c("query", { xmlns: "jabber:iq:roster" })
+      .c("item", { jid: jid, name: name });
+    conn.sendIQ(iq, () => {
+      contacts.push({ jid, name, type });
+      renderContacts();
+      subscribeToContact(jid);
+      console.log(`Added ${jid} to roster`);
+    });
   }
 
   return true;
 }
 
 function removeContact(jid) {
-  contacts = contacts.filter(c => c.jid !== jid);
-  saveContacts();
-  renderContacts();
+  const contact = contacts.find(c => c.jid === jid);
+
+  if (contact && contact.type === "room") {
+    contacts = contacts.filter(c => c.jid !== jid);
+    saveRooms();
+    renderContacts();
+  } else {
+    // Remove from XMPP Roster on server
+    const iq = $iq({ type: "set" })
+      .c("query", { xmlns: "jabber:iq:roster" })
+      .c("item", { jid: jid, subscription: "remove" });
+    conn.sendIQ(iq, () => {
+      contacts = contacts.filter(c => c.jid !== jid);
+      renderContacts();
+      console.log(`Removed ${jid} from roster`);
+    });
+  }
 }
 
 function renderContacts() {
@@ -885,10 +1076,6 @@ function closeSidebar() {
 // --- Initialize ---
 window.addEventListener("DOMContentLoaded", () => {
   console.log("UI initializing...");
-
-  // Load contacts and message history
-  loadContacts();
-  loadMessageHistory();
 
   // Connect button
   const btnConnect = document.getElementById("btnConnect");
