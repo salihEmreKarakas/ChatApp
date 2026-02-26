@@ -381,12 +381,11 @@ class XMPPService extends EventEmitter {
   }
 
   // XEP-0077 In-Band Registration
-  register(username, password, wsUrl) {
+  register(username, password, wsUrl, xmppDomain) {
     return new Promise((resolve, reject) => {
-      const domain = wsUrl
-        .replace(/^wss?:\/\//, "")
-        .replace(/\/.*$/, "")
-        .replace(/:\d+$/, "");
+      // xmppDomain is the XMPP VirtualHost (e.g. "localhost"), which may differ
+      // from the WebSocket endpoint hostname (e.g. a Cloudflare tunnel URL).
+      const domain = xmppDomain || "localhost";
 
       const ws = new WebSocket(wsUrl, "xmpp");
       let done = false;

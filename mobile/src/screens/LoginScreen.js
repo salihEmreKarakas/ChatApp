@@ -81,15 +81,18 @@ export default function LoginScreen() {
     }
 
     const wsUrl = serverUrl.trim() || "ws://localhost/xmpp-websocket";
+    // XMPP domain (VirtualHost) is always "localhost" for our Prosody server,
+    // regardless of the WebSocket endpoint hostname (e.g. Cloudflare tunnel).
+    const wsHost = wsUrl.replace(/^wss?:\/\//, "").replace(/\/.*$/, "").replace(/:\d+$/, "");
+    const xmppDomain = (wsHost === "localhost" || wsHost === "127.0.0.1") ? wsHost : "localhost";
     setRegistering(true);
     try {
-      await xmpp.register(regUsername.trim(), regPass, wsUrl);
+      await xmpp.register(regUsername.trim(), regPass, wsUrl, xmppDomain);
       Alert.alert(
         "Kayıt Başarılı",
         "Hesabınız oluşturuldu! Giriş yapabilirsiniz.",
         [{ text: "Giriş Yap", onPress: () => {
-          const domain = wsUrl.replace(/^wss?:\/\//, "").replace(/\/.*$/, "").replace(/:\d+$/, "");
-          setJid(regUsername.trim() + "@" + domain);
+          setJid(regUsername.trim() + "@" + xmppDomain);
           setPassword(regPass);
           setMode("login");
         }}]
