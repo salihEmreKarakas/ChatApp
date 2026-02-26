@@ -406,10 +406,32 @@ class XMPPService extends EventEmitter {
 
       ws.onmessage = (e) => {
         const text = e.data;
-        if (!iqSent && (text.includes("<features") || text.includes("stream:features"))) {
+        console.log("[REG]", text.substring(0, 300));
+
+        if (text.includes("stream:error") || text.includes("<close")) {
+          finish(false, "Sunucu bağlantıyı kapattı.");
+          return;
+        }
+
+        // Step 1: Features → GET form
+        if (!iqSent && (text.includes("stream:features") || text.includes(":features"))) {
           iqSent = true;
           ws.send(
-            `<iq type="set" id="reg1" to="${escapeXml(domain)}">` +
+            `<iq xmlns="jabber:client" type="get" id="reg_get" to="${escapeXml(domain)}">` +
+            `<query xmlns="jabber:iq:register"/>` +
+            `</iq>`
+          );
+          return;
+        }
+
+        // Step 2: Form received → SET with credentials
+        if (text.includes('id="reg_get"') || text.includes("id='reg_get'")) {
+          if (text.includes('type="error"') || text.includes("type='error'")) {
+            finish(false, "Kayıt bu sunucuda desteklenmiyor.");
+            return;
+          }
+          ws.send(
+            `<iq xmlns="jabber:client" type="set" id="reg_set">` +
             `<query xmlns="jabber:iq:register">` +
             `<username>${escapeXml(username)}</username>` +
             `<password>${escapeXml(password)}</password>` +
@@ -417,7 +439,9 @@ class XMPPService extends EventEmitter {
           );
           return;
         }
-        if (text.includes('id="reg1"') || text.includes("id='reg1'")) {
+
+        // Step 3: Registration result
+        if (text.includes('id="reg_set"') || text.includes("id='reg_set'")) {
           if (text.includes('type="result"') || text.includes("type='result'")) {
             finish(true);
           } else {

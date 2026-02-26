@@ -600,11 +600,33 @@ function registerAccount() {
 
   ws.onmessage = (e) => {
     const text = e.data;
-    // After stream features arrive, send registration IQ
-    if (!iqSent && (text.includes("<features") || text.includes("stream:features"))) {
+    console.log("[REG]", text.substring(0, 300));
+
+    // Stream or server error — abort
+    if (text.includes("stream:error") || text.includes("<close")) {
+      finish(false, "Sunucu bağlantıyı kapattı.");
+      return;
+    }
+
+    // Step 1: Features received → send GET to query registration form
+    if (!iqSent && (text.includes("stream:features") || text.includes(":features"))) {
       iqSent = true;
       ws.send(
-        `<iq type="set" id="reg1" to="${xmlEscape(domain)}">` +
+        `<iq xmlns="jabber:client" type="get" id="reg_get" to="${xmlEscape(domain)}">` +
+        `<query xmlns="jabber:iq:register"/>` +
+        `</iq>`
+      );
+      return;
+    }
+
+    // Step 2: Got the form back → send SET with username+password
+    if (text.includes('id="reg_get"') || text.includes("id='reg_get'")) {
+      if (text.includes('type="error"') || text.includes("type='error'")) {
+        finish(false, "Kayıt bu sunucuda desteklenmiyor.");
+        return;
+      }
+      ws.send(
+        `<iq xmlns="jabber:client" type="set" id="reg_set">` +
         `<query xmlns="jabber:iq:register">` +
         `<username>${xmlEscape(username)}</username>` +
         `<password>${xmlEscape(pass)}</password>` +
@@ -612,8 +634,9 @@ function registerAccount() {
       );
       return;
     }
-    // Parse registration result
-    if (text.includes('id="reg1"') || text.includes("id='reg1'")) {
+
+    // Step 3: Registration result
+    if (text.includes('id="reg_set"') || text.includes("id='reg_set'")) {
       if (text.includes('type="result"') || text.includes("type='result'")) {
         finish(true);
       } else {
