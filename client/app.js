@@ -516,11 +516,6 @@ function getHostForWs() {
   return window.location.hostname || "localhost";
 }
 
-function getXmppUrl() {
-  const host = getHostForWs();
-  const isSecure = window.location.protocol === "https:";
-  return `${isSecure ? "wss" : "ws"}://${host}/xmpp-websocket`;
-}
 
 function normalizeDomainForJid() {
   return "localhost";
@@ -533,6 +528,118 @@ function normalizeRoomDomain() {
 function safeVal(id) {
   const el = document.getElementById(id);
   return el ? el.value : "";
+}
+
+// --- Auth Tab Toggle ---
+function showAuthTab(tab) {
+  document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+  document.getElementById("tabRegister").classList.toggle("active", tab === "register");
+  document.getElementById("loginForm").classList.toggle("active", tab === "login");
+  document.getElementById("registerForm").classList.toggle("active", tab === "register");
+}
+
+// --- Registration (XEP-0077 In-Band Registration) ---
+function xmlEscape(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function showRegisterMsg(type, text) {
+  const err = document.getElementById("registerError");
+  const ok = document.getElementById("registerSuccess");
+  if (err) { err.textContent = ""; err.classList.remove("active"); }
+  if (ok)  { ok.textContent  = ""; ok.classList.remove("active"); }
+  if (type === "error" && err) { err.textContent = text; err.classList.add("active"); }
+  if (type === "success" && ok) { ok.textContent = text; ok.classList.add("active"); }
+}
+
+function registerAccount() {
+  const username = safeVal("regUsername").trim();
+  const domain   = safeVal("regDomain").trim() || "localhost";
+  const pass     = safeVal("regPass");
+  const pass2    = safeVal("regPassConfirm");
+
+  if (!username) { showRegisterMsg("error", "Kullanıcı adı boş olamaz."); return; }
+  if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+    showRegisterMsg("error", "Kullanıcı adı sadece harf, rakam, nokta, tire ve alt çizgi içerebilir."); return;
+  }
+  if (pass.length < 4) { showRegisterMsg("error", "Şifre en az 4 karakter olmalı."); return; }
+  if (pass !== pass2)  { showRegisterMsg("error", "Şifreler eşleşmiyor."); return; }
+
+  const wsUrl = getXmppUrl(domain);
+  const btn = document.getElementById("btnRegister");
+  if (btn) { btn.disabled = true; btn.textContent = "Kayıt yapılıyor..."; }
+  showRegisterMsg("", "");
+
+  const ws = new WebSocket(wsUrl, "xmpp");
+  let done = false;
+  let iqSent = false;
+
+  function finish(success, msg) {
+    if (done) return;
+    done = true;
+    try { ws.close(); } catch (_) {}
+    if (btn) { btn.disabled = false; btn.textContent = "Kayıt Ol"; }
+    if (success) {
+      showRegisterMsg("success", "Kayıt başarılı! Giriş yapabilirsiniz.");
+      // Pre-fill login form
+      const jidEl = document.getElementById("jid");
+      if (jidEl) jidEl.value = username + "@" + domain;
+      setTimeout(() => showAuthTab("login"), 1500);
+    } else {
+      showRegisterMsg("error", msg);
+    }
+  }
+
+  ws.onopen = () => {
+    ws.send(`<open xmlns="urn:ietf:params:xml:ns:xmpp-framing" to="${xmlEscape(domain)}" version="1.0"/>`);
+  };
+
+  ws.onmessage = (e) => {
+    const text = e.data;
+    // After stream features arrive, send registration IQ
+    if (!iqSent && (text.includes("<features") || text.includes("stream:features"))) {
+      iqSent = true;
+      ws.send(
+        `<iq type="set" id="reg1" to="${xmlEscape(domain)}">` +
+        `<query xmlns="jabber:iq:register">` +
+        `<username>${xmlEscape(username)}</username>` +
+        `<password>${xmlEscape(pass)}</password>` +
+        `</query></iq>`
+      );
+      return;
+    }
+    // Parse registration result
+    if (text.includes('id="reg1"') || text.includes("id='reg1'")) {
+      if (text.includes('type="result"') || text.includes("type='result'")) {
+        finish(true);
+      } else {
+        let msg = "Kayıt başarısız.";
+        if (text.includes("conflict"))    msg = "Bu kullanıcı adı zaten kullanımda.";
+        if (text.includes("not-allowed")) msg = "Kayıt şu an kapalı.";
+        if (text.includes("bad-request")) msg = "Geçersiz kullanıcı adı veya şifre.";
+        finish(false, msg);
+      }
+    }
+  };
+
+  ws.onerror = () => finish(false, "Sunucuya bağlanılamadı.");
+  ws.onclose = () => { if (!done) finish(false, "Bağlantı kesildi."); };
+  setTimeout(() => { if (!done) finish(false, "Bağlantı zaman aşımına uğradı."); }, 12000);
+}
+
+function getXmppUrl(overrideDomain) {
+  const isSecure = window.location.protocol === "https:";
+  const host = overrideDomain || getHostForWs();
+  // If override is a plain domain (e.g. "localhost"), use window host for WS endpoint
+  if (overrideDomain) {
+    const wsHost = getHostForWs();
+    return `${isSecure ? "wss" : "ws"}://${wsHost}/xmpp-websocket`;
+  }
+  return `${isSecure ? "wss" : "ws"}://${host}/xmpp-websocket`;
 }
 
 // --- Handlers ---
@@ -1177,6 +1284,16 @@ window.addEventListener("DOMContentLoaded", () => {
   if (btnDisconnect) {
     btnDisconnect.addEventListener("click", disconnect);
   }
+
+  // Auth tab buttons
+  const tabLogin = document.getElementById("tabLogin");
+  if (tabLogin) tabLogin.addEventListener("click", () => showAuthTab("login"));
+  const tabRegister = document.getElementById("tabRegister");
+  if (tabRegister) tabRegister.addEventListener("click", () => showAuthTab("register"));
+
+  // Register button
+  const btnRegister = document.getElementById("btnRegister");
+  if (btnRegister) btnRegister.addEventListener("click", registerAccount);
 
   // Send button
   const btnSend = document.getElementById("btnSend");

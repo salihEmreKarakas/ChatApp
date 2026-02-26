@@ -17,6 +17,7 @@ modules_enabled = {
   "bosh";
   "admin_adhoc";
   "mam";
+  "register";
 }
 
 -- MAM (Message Archive Management) settings

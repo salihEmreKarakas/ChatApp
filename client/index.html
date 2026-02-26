@@ -155,6 +155,68 @@
       background: #ececec;
     }
 
+    /* Auth tabs */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 16px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px 0;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      transition: color 0.2s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .auth-tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .register-error {
+      background: #ffebee;
+      color: #c62828;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .register-error.active {
+      display: block;
+    }
+
+    .register-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .register-success.active {
+      display: block;
+    }
+
     /* Contacts */
     .contacts-section {
       flex: 1;
@@ -857,18 +919,50 @@
       </div>
 
       <div class="login-section" id="loginSection">
-        <div class="input-group">
-          <label for="jid">Kullanıcı Adı (JID)</label>
-          <input id="jid" value="emre@localhost" autocomplete="off" />
+
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin" type="button">Giriş Yap</button>
+          <button class="auth-tab" id="tabRegister" type="button">Kayıt Ol</button>
         </div>
 
-        <div class="input-group">
-          <label for="pass">Şifre</label>
-          <input id="pass" type="password" value="123456" autocomplete="off" />
+        <!-- Login Form -->
+        <div class="auth-form active" id="loginForm">
+          <div class="input-group">
+            <label for="jid">Kullanıcı Adı (JID)</label>
+            <input id="jid" value="emre@localhost" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="pass">Şifre</label>
+            <input id="pass" type="password" value="123456" autocomplete="off" />
+          </div>
+          <button id="btnConnect" type="button" class="btn btn-primary">Bağlan</button>
+          <button id="btnDisconnect" type="button" class="btn btn-secondary" style="display:none;">Bağlantıyı Kes</button>
         </div>
 
-        <button id="btnConnect" type="button" class="btn btn-primary">Bağlan</button>
-        <button id="btnDisconnect" type="button" class="btn btn-secondary" style="display:none;">Bağlantıyı Kes</button>
+        <!-- Register Form -->
+        <div class="auth-form" id="registerForm">
+          <div class="register-error" id="registerError"></div>
+          <div class="register-success" id="registerSuccess"></div>
+          <div class="input-group">
+            <label for="regUsername">Kullanıcı Adı</label>
+            <input id="regUsername" placeholder="örnek: emre" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="regDomain">Sunucu</label>
+            <input id="regDomain" value="localhost" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="regPass">Şifre</label>
+            <input id="regPass" type="password" placeholder="En az 4 karakter" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="regPassConfirm">Şifre Tekrar</label>
+            <input id="regPassConfirm" type="password" placeholder="Şifrenizi tekrar girin" autocomplete="off" />
+          </div>
+          <button id="btnRegister" type="button" class="btn btn-primary">Kayıt Ol</button>
+        </div>
+
       </div>
 
       <div class="add-contact-section">
@@ -967,7 +1061,7 @@
   <!-- Scripts -->
   <script src="./strophe.umd.min.js"></script>
   <script src="https://meet.jit.si/external_api.js"></script>
-  <script src="./app.js?v=5"></script>
+  <script src="./app.js?v=6"></script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then(() => {

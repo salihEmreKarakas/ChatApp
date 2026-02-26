@@ -380,6 +380,62 @@ class XMPPService extends EventEmitter {
     );
   }
 
+  // XEP-0077 In-Band Registration
+  register(username, password, wsUrl) {
+    return new Promise((resolve, reject) => {
+      const domain = wsUrl
+        .replace(/^wss?:\/\//, "")
+        .replace(/\/.*$/, "")
+        .replace(/:\d+$/, "");
+
+      const ws = new WebSocket(wsUrl, "xmpp");
+      let done = false;
+      let iqSent = false;
+
+      const finish = (ok, msg) => {
+        if (done) return;
+        done = true;
+        try { ws.close(); } catch (_) {}
+        if (ok) resolve();
+        else reject(new Error(msg));
+      };
+
+      ws.onopen = () => {
+        ws.send(`<open xmlns="urn:ietf:params:xml:ns:xmpp-framing" to="${escapeXml(domain)}" version="1.0"/>`);
+      };
+
+      ws.onmessage = (e) => {
+        const text = e.data;
+        if (!iqSent && (text.includes("<features") || text.includes("stream:features"))) {
+          iqSent = true;
+          ws.send(
+            `<iq type="set" id="reg1" to="${escapeXml(domain)}">` +
+            `<query xmlns="jabber:iq:register">` +
+            `<username>${escapeXml(username)}</username>` +
+            `<password>${escapeXml(password)}</password>` +
+            `</query></iq>`
+          );
+          return;
+        }
+        if (text.includes('id="reg1"') || text.includes("id='reg1'")) {
+          if (text.includes('type="result"') || text.includes("type='result'")) {
+            finish(true);
+          } else {
+            let msg = "Kayıt başarısız.";
+            if (text.includes("conflict"))    msg = "Bu kullanıcı adı zaten kullanımda.";
+            if (text.includes("not-allowed")) msg = "Kayıt şu an kapalı.";
+            if (text.includes("bad-request")) msg = "Geçersiz kullanıcı adı.";
+            finish(false, msg);
+          }
+        }
+      };
+
+      ws.onerror = () => finish(false, "Sunucuya bağlanılamadı.");
+      ws.onclose = () => { if (!done) finish(false, "Bağlantı kesildi."); };
+      setTimeout(() => { if (!done) finish(false, "Bağlantı zaman aşımı."); }, 12000);
+    });
+  }
+
   sendCallInvite(toJid, roomName) {
     if (!this.connected) return;
     this._sendRaw(
