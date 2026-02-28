@@ -13,6 +13,7 @@ import { useChat } from "../context/ChatContext";
 import MessageBubble from "../components/MessageBubble";
 import VideoCallModal from "../components/VideoCallModal";
 import xmpp from "../services/xmpp";
+import * as ImagePicker from "expo-image-picker";
 
 export default function ChatScreen({ route, navigation }) {
   const { contact } = route.params;
@@ -97,6 +98,71 @@ export default function ChatScreen({ route, navigation }) {
     if (typingTimerRef.current) {
       clearTimeout(typingTimerRef.current);
       typingTimerRef.current = null;
+    }
+  };
+
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 0.7,
+    });
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const asset = result.assets[0];
+    // Determine upload base URL from the XMPP WebSocket URL stored in AsyncStorage
+    let uploadBase = "";
+    try {
+      const creds = await require("@react-native-async-storage/async-storage").default.getItem("login_credentials");
+      if (creds) {
+        const { serverUrl } = JSON.parse(creds);
+        // Convert wss://host/xmpp-websocket -> https://host
+        uploadBase = serverUrl.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://").replace(/\/xmpp-websocket$/, "");
+      }
+    } catch (_) { }
+    if (!uploadBase) uploadBase = "http://localhost:8888";
+
+    try {
+      const formData = new FormData();
+      const fileName = asset.uri.split("/").pop() || "image.jpg";
+      formData.append("file", {
+        uri: asset.uri,
+        name: fileName,
+        type: asset.mimeType || "image/jpeg",
+      });
+
+      const resp = await fetch(`${uploadBase}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await resp.json();
+      if (data.url) {
+        const fullUrl = `${uploadBase}${data.url}`;
+        const msgType = contact.type === "room" ? "groupchat" : "chat";
+        const messageId = xmpp.sendMessage(contact.jid, fullUrl, msgType);
+        if (messageId) {
+          dispatch({
+            type: "ADD_MESSAGE",
+            payload: {
+              jid: contact.jid,
+              message: {
+                id: messageId,
+                from: state.myJid,
+                text: fullUrl,
+                isSent: true,
+                showSender: false,
+                timestamp: Date.now(),
+                seen: false,
+              },
+            },
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("[Upload Error]", err);
     }
   };
 
@@ -247,6 +313,9 @@ export default function ChatScreen({ route, navigation }) {
 
       {/* Input */}
       <View style={styles.inputContainer}>
+        <TouchableOpacity style={styles.attachBtn} onPress={handlePickImage}>
+          <Text style={styles.attachBtnText}>📎</Text>
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Mesaj yaz..."
@@ -395,4 +464,13 @@ const styles = StyleSheet.create({
   },
   sendBtnDisabled: { opacity: 0.4 },
   sendBtnText: { color: "white", fontWeight: "600", fontSize: 15 },
+  attachBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  attachBtnText: { fontSize: 20 },
 });

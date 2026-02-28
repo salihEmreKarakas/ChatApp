@@ -431,7 +431,23 @@ function addMessageToUI(from, text, isSent = false, showSender = false, messageI
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble";
-  bubble.textContent = text;
+
+  // Check if message is an image URL
+  const imageRegex = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+  if (imageRegex.test(text?.trim() || "")) {
+    const img = document.createElement("img");
+    img.src = text.trim();
+    img.alt = "Paylaşılan görsel";
+    img.style.maxWidth = "280px";
+    img.style.maxHeight = "280px";
+    img.style.borderRadius = "12px";
+    img.style.display = "block";
+    img.style.cursor = "pointer";
+    img.onclick = () => window.open(text.trim(), "_blank");
+    bubble.appendChild(img);
+  } else {
+    bubble.textContent = text;
+  }
 
   // Add seen indicator for sent messages
   if (isSent) {
@@ -551,23 +567,23 @@ function showRegisterMsg(type, text) {
   const err = document.getElementById("registerError");
   const ok = document.getElementById("registerSuccess");
   if (err) { err.textContent = ""; err.classList.remove("active"); }
-  if (ok)  { ok.textContent  = ""; ok.classList.remove("active"); }
+  if (ok) { ok.textContent = ""; ok.classList.remove("active"); }
   if (type === "error" && err) { err.textContent = text; err.classList.add("active"); }
   if (type === "success" && ok) { ok.textContent = text; ok.classList.add("active"); }
 }
 
 function registerAccount() {
   const username = safeVal("regUsername").trim();
-  const domain   = safeVal("regDomain").trim() || "localhost";
-  const pass     = safeVal("regPass");
-  const pass2    = safeVal("regPassConfirm");
+  const domain = safeVal("regDomain").trim() || "localhost";
+  const pass = safeVal("regPass");
+  const pass2 = safeVal("regPassConfirm");
 
   if (!username) { showRegisterMsg("error", "Kullanıcı adı boş olamaz."); return; }
   if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
     showRegisterMsg("error", "Kullanıcı adı sadece harf, rakam, nokta, tire ve alt çizgi içerebilir."); return;
   }
   if (pass.length < 4) { showRegisterMsg("error", "Şifre en az 4 karakter olmalı."); return; }
-  if (pass !== pass2)  { showRegisterMsg("error", "Şifreler eşleşmiyor."); return; }
+  if (pass !== pass2) { showRegisterMsg("error", "Şifreler eşleşmiyor."); return; }
 
   const wsUrl = getXmppUrl(domain);
   const btn = document.getElementById("btnRegister");
@@ -581,7 +597,7 @@ function registerAccount() {
   function finish(success, msg) {
     if (done) return;
     done = true;
-    try { ws.close(); } catch (_) {}
+    try { ws.close(); } catch (_) { }
     if (btn) { btn.disabled = false; btn.textContent = "Kayıt Ol"; }
     if (success) {
       showRegisterMsg("success", "Kayıt başarılı! Giriş yapabilirsiniz.");
@@ -641,7 +657,7 @@ function registerAccount() {
         finish(true);
       } else {
         let msg = "Kayıt başarısız.";
-        if (text.includes("conflict"))    msg = "Bu kullanıcı adı zaten kullanımda.";
+        if (text.includes("conflict")) msg = "Bu kullanıcı adı zaten kullanımda.";
         if (text.includes("not-allowed")) msg = "Kayıt şu an kapalı.";
         if (text.includes("bad-request")) msg = "Geçersiz kullanıcı adı veya şifre.";
         finish(false, msg);
@@ -805,7 +821,7 @@ function onIq(iq) {
 
 function addHandlers() {
   // Single catch-all message handler — avoids Strophe.js type-filter issues in WebSocket mode
-  conn.addHandler(function(msg) {
+  conn.addHandler(function (msg) {
     const type = msg.getAttribute("type") || "";
     if (type === "groupchat") return onGroupMessage(msg);
     return onChatMessage(msg);
@@ -932,6 +948,52 @@ function sendMessage() {
     clearTimeout(typingTimer);
     typingTimer = null;
   }
+}
+
+function handleFileSelect() {
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/jpeg,image/png,image/gif,image/webp";
+  fileInput.style.display = "none";
+  fileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Dosya çok büyük (max 10MB)");
+      return;
+    }
+    if (!currentChat) {
+      alert("Önce bir kişi veya oda seçin!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const baseUrl = window.location.origin;
+      const resp = await fetch(`${baseUrl}/upload`, { method: "POST", body: formData });
+      const data = await resp.json();
+      if (data.url) {
+        const fullUrl = `${baseUrl}${data.url}`;
+        if (currentChat.type === "room") {
+          const stanza = $msg({ to: currentChat.jid, type: "groupchat" }).c("body").t(fullUrl);
+          conn.send(stanza.tree());
+        } else {
+          const messageId = `msg_${Date.now()}_${Math.random()}`;
+          const stanza = $msg({ to: currentChat.jid, type: "chat", id: messageId }).c("body").t(fullUrl);
+          conn.send(stanza.tree());
+          addMessage(currentChat.jid, "Me", fullUrl, true, false, messageId);
+        }
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Dosya yüklenemedi!");
+    }
+  };
+  document.body.appendChild(fileInput);
+  fileInput.click();
+  setTimeout(() => fileInput.remove(), 60000);
 }
 
 function joinRoom(roomJid) {
@@ -1323,6 +1385,10 @@ window.addEventListener("DOMContentLoaded", () => {
   // Register button
   const btnRegister = document.getElementById("btnRegister");
   if (btnRegister) btnRegister.addEventListener("click", registerAccount);
+
+  // Attach file button
+  const btnAttach = document.getElementById("btnAttach");
+  if (btnAttach) btnAttach.addEventListener("click", handleFileSelect);
 
   // Send button
   const btnSend = document.getElementById("btnSend");

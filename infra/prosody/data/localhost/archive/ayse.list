@@ -1575,3 +1575,62 @@ item({
 	["key"] = "j6XyR8WvJ3oKETX2";
 	["name"] = "message";
 });
+item({
+	{
+		"123";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	["with"] = "test4@localhost";
+	["name"] = "message";
+	["attr"] = {
+		["stamp_legacy"] = "20260228T00:51:39";
+		["from"] = "test4@localhost/OXdJoz6a";
+		["id"] = "msg_1772239899074_0.3878592264453332";
+		["type"] = "chat";
+		["stamp"] = "2026-02-28T00:51:39Z";
+		["to"] = "ayse@localhost";
+	};
+	["when"] = 1772239899;
+	["key"] = "rffmLfobTQDlRraj";
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772239899074_0.3878592264453332";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["with"] = "test4@localhost";
+	["name"] = "message";
+	["attr"] = {
+		["stamp_legacy"] = "20260228T00:51:40";
+		["from"] = "ayse@localhost/mobile";
+		["type"] = "chat";
+		["stamp"] = "2026-02-28T00:51:40Z";
+		["to"] = "test4@localhost";
+	};
+	["when"] = 1772239900;
+	["key"] = "cUG4TsMHxzS2pnqr";
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772239899074_0.3878592264453332";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["with"] = "test4@localhost";
+	["name"] = "message";
+	["attr"] = {
+		["stamp_legacy"] = "20260228T00:51:40";
+		["from"] = "ayse@localhost/mobile";
+		["type"] = "chat";
+		["stamp"] = "2026-02-28T00:51:40Z";
+		["to"] = "test4@localhost";
+	};
+	["when"] = 1772239900;
+	["key"] = "tEyhS60Ho9WvedZT";
+});

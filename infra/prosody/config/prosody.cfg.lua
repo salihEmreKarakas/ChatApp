@@ -31,6 +31,7 @@ archive_expires_after = "1w" -- Keep messages for 1 week
 default_archive_policy = true -- Archive messages by default
 
 allow_registration = true
+authentication = "internal_hashed"
 
 c2s_interfaces = { "*" }
 c2s_ports = { 5222 }

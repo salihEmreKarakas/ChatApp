@@ -15,6 +15,7 @@
     "@xmldom/xmldom": "^0.8.11",
     "events": "^3.3.0",
     "expo": "~54.0.33",
+    "expo-image-picker": "^55.0.10",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5",

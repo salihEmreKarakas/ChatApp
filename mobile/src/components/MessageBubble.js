@@ -1,8 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
+
+const IMAGE_REGEX = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
 
 export default function MessageBubble({ message }) {
   const { text, isSent, showSender, from, timestamp, seen } = message;
+  const isImage = IMAGE_REGEX.test(text?.trim() || "");
 
   const time = new Date(timestamp).toLocaleTimeString("tr-TR", {
     hour: "2-digit",
@@ -11,11 +14,15 @@ export default function MessageBubble({ message }) {
 
   return (
     <View style={[styles.row, isSent && styles.rowSent]}>
-      <View style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived]}>
+      <View style={[styles.bubble, isSent ? styles.bubbleSent : styles.bubbleReceived, isImage && styles.bubbleImage]}>
         {showSender && (
           <Text style={styles.sender}>{from}</Text>
         )}
-        <Text style={[styles.text, isSent && styles.textSent]}>{text}</Text>
+        {isImage ? (
+          <Image source={{ uri: text.trim() }} style={styles.image} resizeMode="cover" />
+        ) : (
+          <Text style={[styles.text, isSent && styles.textSent]}>{text}</Text>
+        )}
         <View style={styles.meta}>
           <Text style={[styles.time, isSent && styles.timeSent]}>{time}</Text>
           {isSent && (
@@ -53,6 +60,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
     borderWidth: 0.5,
     borderColor: "#e0e0e0",
+  },
+  bubbleImage: {
+    padding: 4,
+    maxWidth: "85%",
+  },
+  image: {
+    width: 220,
+    height: 220,
+    borderRadius: 12,
   },
   sender: {
     fontSize: 12,

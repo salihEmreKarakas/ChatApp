@@ -1,33 +1,34 @@
 return {
 	[false] = {
-		["pending"] = {};
-		["version"] = 15;
-	};
-	["test@localhost"] = {
-		["subscription"] = "none";
-		["groups"] = {};
-		["name"] = "test";
-		["ask"] = "subscribe";
-	};
-	["ayse"] = {
-		["groups"] = {};
-		["subscription"] = "none";
-		["name"] = "ayse";
-		["ask"] = "subscribe";
-	};
-	["ayse@localhost"] = {
-		["groups"] = {};
-		["subscription"] = "none";
-		["name"] = "ayse";
-		["ask"] = "subscribe";
+		["pending"] = {
+			["ayse@localhost"] = true;
+		};
+		["version"] = 17;
 	};
 	["test2@localhost"] = {
+		["subscription"] = "both";
 		["groups"] = {};
 		["name"] = "test2";
-		["subscription"] = "both";
+	};
+	["ayse"] = {
+		["subscription"] = "none";
+		["ask"] = "subscribe";
+		["groups"] = {};
+		["name"] = "ayse";
 	};
 	["emre@localhost"] = {
 		["subscription"] = "both";
 		["groups"] = {};
+	};
+	["test@localhost"] = {
+		["subscription"] = "none";
+		["ask"] = "subscribe";
+		["groups"] = {};
+		["name"] = "test";
+	};
+	["ayse@localhost"] = {
+		["subscription"] = "to";
+		["groups"] = {};
+		["name"] = "ayse";
 	};
 };

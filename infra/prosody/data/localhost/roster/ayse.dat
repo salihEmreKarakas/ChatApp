@@ -1,17 +1,24 @@
 return {
 	[false] = {
-		["pending"] = {
-			["mobil@localhost"] = true;
-		};
-		["version"] = 6;
+		["pending"] = {};
+		["version"] = 12;
+	};
+	["mobil@localhost"] = {
+		["subscription"] = "from";
+		["ask"] = "subscribe";
+		["groups"] = {};
+	};
+	["general@conference.localhost"] = {
+		["subscription"] = "none";
+		["ask"] = "subscribe";
+		["groups"] = {};
 	};
 	["emre@localhost"] = {
 		["subscription"] = "both";
 		["groups"] = {};
 	};
-	["general@conference.localhost"] = {
-		["ask"] = "subscribe";
-		["subscription"] = "none";
+	["test4@localhost"] = {
+		["subscription"] = "both";
 		["groups"] = {};
 	};
 };
