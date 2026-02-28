@@ -1,0 +1,33 @@
+return {
+	[false] = {
+		["pending"] = {};
+		["version"] = 15;
+	};
+	["test@localhost"] = {
+		["subscription"] = "none";
+		["groups"] = {};
+		["name"] = "test";
+		["ask"] = "subscribe";
+	};
+	["ayse"] = {
+		["groups"] = {};
+		["subscription"] = "none";
+		["name"] = "ayse";
+		["ask"] = "subscribe";
+	};
+	["ayse@localhost"] = {
+		["groups"] = {};
+		["subscription"] = "none";
+		["name"] = "ayse";
+		["ask"] = "subscribe";
+	};
+	["test2@localhost"] = {
+		["groups"] = {};
+		["name"] = "test2";
+		["subscription"] = "both";
+	};
+	["emre@localhost"] = {
+		["subscription"] = "both";
+		["groups"] = {};
+	};
+};

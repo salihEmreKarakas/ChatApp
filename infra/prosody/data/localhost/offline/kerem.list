@@ -1,0 +1,196 @@
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "urn:xmpp:receipts";
+			["id"] = "msg_1771417572986_0.5817898243794443";
+		};
+		["name"] = "seen";
+	};
+	{
+		["attr"] = {
+			["by"] = "kerem@localhost";
+			["xmlns"] = "urn:xmpp:sid:0";
+			["id"] = "1emo_Mc91vOpdlik";
+		};
+		["name"] = "stanza-id";
+	};
+	["when"] = 1771417598;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T12:26:38";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/xLiqZl6X";
+		["stamp"] = "2026-02-18T12:26:38Z";
+	};
+	["name"] = "message";
+	["key"] = "O8RyrpciVLmQV0Bt";
+	["with"] = "";
+});
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/chatstates";
+		};
+		["name"] = "composing";
+	};
+	["when"] = 1771417654;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T12:27:34";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/xLiqZl6X";
+		["stamp"] = "2026-02-18T12:27:34Z";
+	};
+	["name"] = "message";
+	["key"] = "Zsj5yUT07bIDyH-N";
+	["with"] = "";
+});
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/chatstates";
+		};
+		["name"] = "composing";
+	};
+	["when"] = 1771417654;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T12:27:34";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/xLiqZl6X";
+		["stamp"] = "2026-02-18T12:27:34Z";
+	};
+	["name"] = "message";
+	["key"] = "aO86M6jvpJUCA6_-";
+	["with"] = "";
+});
+item({
+	{
+		"hi";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	{
+		["attr"] = {
+			["by"] = "kerem@localhost";
+			["xmlns"] = "urn:xmpp:sid:0";
+			["id"] = "4oQYiB0WXNh0dEm7";
+		};
+		["name"] = "stanza-id";
+	};
+	["when"] = 1771417654;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T12:27:34";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/xLiqZl6X";
+		["stamp"] = "2026-02-18T12:27:34Z";
+		["id"] = "msg_1771417654488_0.6270966882412403";
+	};
+	["name"] = "message";
+	["key"] = "dc3t02O83hMagWes";
+	["with"] = "";
+});
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "http://jabber.org/protocol/chatstates";
+		};
+		["name"] = "active";
+	};
+	["when"] = 1771417654;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T12:27:34";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/xLiqZl6X";
+		["stamp"] = "2026-02-18T12:27:34Z";
+	};
+	["name"] = "message";
+	["key"] = "rle06x7gp0WBoKiU";
+	["with"] = "";
+});
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "urn:xmpp:receipts";
+			["id"] = "msg_1771417572986_0.5817898243794443";
+		};
+		["name"] = "seen";
+	};
+	{
+		["attr"] = {
+			["by"] = "kerem@localhost";
+			["xmlns"] = "urn:xmpp:sid:0";
+			["id"] = "jyA93uWK9DMFOvzG";
+		};
+		["name"] = "stanza-id";
+	};
+	["when"] = 1771417669;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T12:27:49";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/44CEsvNJ";
+		["stamp"] = "2026-02-18T12:27:49Z";
+	};
+	["name"] = "message";
+	["key"] = "LPnd3SG2CkjdgB-J";
+	["with"] = "";
+});
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "urn:xmpp:receipts";
+			["id"] = "msg_1771417572986_0.5817898243794443";
+		};
+		["name"] = "seen";
+	};
+	{
+		["attr"] = {
+			["by"] = "kerem@localhost";
+			["xmlns"] = "urn:xmpp:sid:0";
+			["id"] = "CH5SmswWCV1lDUiu";
+		};
+		["name"] = "stanza-id";
+	};
+	["when"] = 1771421071;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T13:24:31";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/EsOQ4_Om";
+		["stamp"] = "2026-02-18T13:24:31Z";
+	};
+	["name"] = "message";
+	["key"] = "uggeiqb9MpoCLy-9";
+	["with"] = "";
+});
+item({
+	{
+		["attr"] = {
+			["xmlns"] = "urn:xmpp:receipts";
+			["id"] = "msg_1771417572986_0.5817898243794443";
+		};
+		["name"] = "seen";
+	};
+	{
+		["attr"] = {
+			["by"] = "kerem@localhost";
+			["xmlns"] = "urn:xmpp:sid:0";
+			["id"] = "OPPjC_QYBSvKiQga";
+		};
+		["name"] = "stanza-id";
+	};
+	["when"] = 1771421511;
+	["attr"] = {
+		["stamp_legacy"] = "20260218T13:31:51";
+		["to"] = "kerem@localhost";
+		["type"] = "chat";
+		["from"] = "emre@localhost/ESzv8w-e";
+		["stamp"] = "2026-02-18T13:31:51Z";
+	};
+	["name"] = "message";
+	["key"] = "UUac-UIWqEOaDOJD";
+	["with"] = "";
+});

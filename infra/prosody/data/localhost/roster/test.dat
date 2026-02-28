@@ -1,0 +1,8 @@
+return {
+	[false] = {
+		["version"] = 1;
+		["pending"] = {
+			["mobil@localhost"] = true;
+		};
+	};
+};

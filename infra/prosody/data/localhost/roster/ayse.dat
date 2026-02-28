@@ -1,0 +1,17 @@
+return {
+	[false] = {
+		["pending"] = {
+			["mobil@localhost"] = true;
+		};
+		["version"] = 6;
+	};
+	["emre@localhost"] = {
+		["subscription"] = "both";
+		["groups"] = {};
+	};
+	["general@conference.localhost"] = {
+		["ask"] = "subscribe";
+		["subscription"] = "none";
+		["groups"] = {};
+	};
+};

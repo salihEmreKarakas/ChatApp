@@ -1,0 +1,80 @@
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772232563442_0.565640544112074";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["key"] = "pNHbAeu8kKJGO8dQ";
+	["with"] = "general@conference.localhost";
+	["name"] = "message";
+	["when"] = 1772232564;
+	["attr"] = {
+		["stamp_legacy"] = "20260227T22:49:24";
+		["stamp"] = "2026-02-27T22:49:24Z";
+		["from"] = "ak@localhost/0IiM1tF5";
+		["to"] = "general@conference.localhost";
+		["type"] = "chat";
+	};
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772232563442_0.9143552651257765";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["key"] = "Q6MnW9RLCuYufwXE";
+	["with"] = "general@conference.localhost";
+	["name"] = "message";
+	["when"] = 1772232564;
+	["attr"] = {
+		["stamp_legacy"] = "20260227T22:49:24";
+		["stamp"] = "2026-02-27T22:49:24Z";
+		["from"] = "ak@localhost/0IiM1tF5";
+		["to"] = "general@conference.localhost";
+		["type"] = "chat";
+	};
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772232564734_0.7489543880323772";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["key"] = "9zPz0QFkFK-Hoqb6";
+	["with"] = "general@conference.localhost";
+	["name"] = "message";
+	["when"] = 1772232564;
+	["attr"] = {
+		["stamp_legacy"] = "20260227T22:49:24";
+		["stamp"] = "2026-02-27T22:49:24Z";
+		["from"] = "ak@localhost/0IiM1tF5";
+		["to"] = "general@conference.localhost";
+		["type"] = "chat";
+	};
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772232564734_0.06151155852288104";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["key"] = "Oo3J8zYb7DOiiZ8K";
+	["with"] = "general@conference.localhost";
+	["name"] = "message";
+	["when"] = 1772232564;
+	["attr"] = {
+		["stamp_legacy"] = "20260227T22:49:24";
+		["stamp"] = "2026-02-27T22:49:24Z";
+		["from"] = "ak@localhost/0IiM1tF5";
+		["to"] = "general@conference.localhost";
+		["type"] = "chat";
+	};
+});

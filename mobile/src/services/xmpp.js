@@ -222,6 +222,9 @@ class XMPPService extends EventEmitter {
     const fromJid = from.split("/")[0];
     const type = msg.getAttribute("type") || "chat";
 
+    // Ignore error stanzas
+    if (type === "error") return;
+
     if (this._getEl(msg, "seen")) {
       const messageId = this._getEl(msg, "seen").getAttribute("id");
       this.emit("seen", { from: fromJid, messageId });
@@ -276,8 +279,8 @@ class XMPPService extends EventEmitter {
     if (!fromJid || fromJid === this.myJid) return;
 
     if (type === "subscribe") {
-      this._sendRaw(`<presence to="${fromJid}" type="subscribed"/>`);
-      this._sendRaw(`<presence to="${fromJid}" type="subscribe"/>`);
+      this._sendRaw(`<presence xmlns="jabber:client" to="${fromJid}" type="subscribed"/>`);
+      this._sendRaw(`<presence xmlns="jabber:client" to="${fromJid}" type="subscribe"/>`);
       return;
     }
 

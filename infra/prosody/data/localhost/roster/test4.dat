@@ -1,0 +1,10 @@
+return {
+	[false] = {
+		["pending"] = {};
+		["version"] = 4;
+	};
+	["test3@localhost"] = {
+		["groups"] = {};
+		["subscription"] = "both";
+	};
+};

@@ -1,0 +1,99 @@
+item({
+	{
+		"nbe";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	["key"] = "WAFxozpBNjnckzNG";
+	["with"] = "emre@localhost";
+	["name"] = "message";
+	["when"] = 1772232537;
+	["attr"] = {
+		["stamp_legacy"] = "20260227T22:48:57";
+		["id"] = "msg_1772232537175_0.20924525543074213";
+		["from"] = "emre@localhost/3CzfMxIO";
+		["to"] = "local@localhost";
+		["stamp"] = "2026-02-27T22:48:57Z";
+		["type"] = "chat";
+	};
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772232537175_0.20924525543074213";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["key"] = "l-xJqb0Id6rFGf0B";
+	["with"] = "emre@localhost";
+	["name"] = "message";
+	["when"] = 1772232549;
+	["attr"] = {
+		["stamp_legacy"] = "20260227T22:49:09";
+		["stamp"] = "2026-02-27T22:49:09Z";
+		["from"] = "local@localhost/86a3s0OI";
+		["to"] = "emre@localhost";
+		["type"] = "chat";
+	};
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772232537175_0.20924525543074213";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["when"] = 1772233562;
+	["attr"] = {
+		["from"] = "local@localhost/8WsioUX0";
+		["type"] = "chat";
+		["to"] = "emre@localhost";
+		["stamp_legacy"] = "20260227T23:06:02";
+		["stamp"] = "2026-02-27T23:06:02Z";
+	};
+	["with"] = "emre@localhost";
+	["key"] = "72OvnujSILMUTRFe";
+	["name"] = "message";
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772233561249_0.6685276031953472";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["when"] = 1772233565;
+	["attr"] = {
+		["from"] = "local@localhost/8WsioUX0";
+		["type"] = "chat";
+		["to"] = "general@conference.localhost";
+		["stamp_legacy"] = "20260227T23:06:05";
+		["stamp"] = "2026-02-27T23:06:05Z";
+	};
+	["with"] = "general@conference.localhost";
+	["key"] = "YcYNHXHWqGISz0T9";
+	["name"] = "message";
+});
+item({
+	{
+		["attr"] = {
+			["id"] = "msg_1772233565857_0.6179022764698724";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+		["name"] = "seen";
+	};
+	["when"] = 1772233565;
+	["attr"] = {
+		["from"] = "local@localhost/8WsioUX0";
+		["type"] = "chat";
+		["to"] = "general@conference.localhost";
+		["stamp_legacy"] = "20260227T23:06:05";
+		["stamp"] = "2026-02-27T23:06:05Z";
+	};
+	["with"] = "general@conference.localhost";
+	["key"] = "jVcJkNIISz_rvZbf";
+	["name"] = "message";
+});

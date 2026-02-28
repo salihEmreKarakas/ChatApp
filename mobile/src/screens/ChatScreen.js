@@ -38,12 +38,14 @@ export default function ChatScreen({ route, navigation }) {
       xmpp.joinRoom(contact.jid);
     }
 
-    // Send seen receipts for all received messages
-    messages.forEach((msg) => {
-      if (!msg.isSent && msg.id) {
-        xmpp.sendSeenReceipt(contact.jid, msg.id);
-      }
-    });
+    // Send seen receipts for all received messages (only for direct chats, not rooms)
+    if (contact.type !== "room") {
+      messages.forEach((msg) => {
+        if (!msg.isSent && msg.id) {
+          xmpp.sendSeenReceipt(contact.jid, msg.id);
+        }
+      });
+    }
 
     return () => {
       dispatch({ type: "SET_CURRENT_CHAT", payload: null });
@@ -60,7 +62,7 @@ export default function ChatScreen({ route, navigation }) {
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
     }
     const lastMsg = messages[messages.length - 1];
-    if (lastMsg && !lastMsg.isSent && lastMsg.id) {
+    if (lastMsg && !lastMsg.isSent && lastMsg.id && contact.type !== "room") {
       xmpp.sendSeenReceipt(contact.jid, lastMsg.id);
     }
   }, [messages.length]);
@@ -179,7 +181,7 @@ export default function ChatScreen({ route, navigation }) {
 
         <View style={styles.headerAvatar}>
           <Text style={styles.headerAvatarText}>
-            {contact.type === "room" ? "🏠" : contact.name.charAt(0).toUpperCase()}
+            {contact.type === "room" ? "🏠" : (contact.name || contact.jid?.split("@")[0] || "?").charAt(0).toUpperCase()}
           </Text>
           {contact.type !== "room" && (
             <View style={[styles.statusDot, isOnline && styles.statusOnline]} />
@@ -187,7 +189,7 @@ export default function ChatScreen({ route, navigation }) {
         </View>
 
         <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>{contact.name}</Text>
+          <Text style={styles.headerTitle}>{contact.name || contact.jid?.split("@")[0] || "?"}</Text>
           <Text
             style={[styles.headerSubtitle, isTyping && styles.headerTyping]}
           >

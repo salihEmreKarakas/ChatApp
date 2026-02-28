@@ -709,6 +709,12 @@ function onChatMessage(msg) {
       return true;
     }
 
+    // Auto-add unknown sender to contacts so the message is visible
+    if (!contacts.find(c => c.jid === fromJid)) {
+      contacts.push({ jid: fromJid, name: fromJid.split("@")[0], type: "chat" });
+      renderContacts();
+    }
+
     // Add message to history and show if in current chat
     addMessage(fromJid, from, text, false, false, messageId); // false = don't show sender for direct chat
 

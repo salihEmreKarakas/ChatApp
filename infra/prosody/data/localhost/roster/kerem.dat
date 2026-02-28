@@ -1,0 +1,11 @@
+return {
+	[false] = {
+		["version"] = 5;
+		["pending"] = {};
+	};
+	["emre@localhost"] = {
+		["subscription"] = "both";
+		["name"] = "emre";
+		["groups"] = {};
+	};
+};

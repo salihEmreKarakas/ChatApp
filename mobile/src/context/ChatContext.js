@@ -170,6 +170,15 @@ export function ChatProvider({ children }) {
     };
 
     const onMessage = ({ from, text, messageId }) => {
+      // Auto-add unknown sender to contacts so the message is visible
+      const knownContact = stateRef.current.contacts.find((c) => c.jid === from);
+      if (!knownContact) {
+        dispatch({
+          type: "ADD_CONTACT",
+          payload: { jid: from, name: from.split("@")[0], type: "chat" },
+        });
+      }
+
       dispatch({
         type: "ADD_MESSAGE",
         payload: {

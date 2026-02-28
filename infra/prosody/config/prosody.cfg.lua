@@ -1,8 +1,5 @@
--- Prosody dev config (no TLS) - Windows/Docker friendly
--- Disable TLS/cert usage completely for local dev
+-- Prosody config with TLS enabled
 use_libevent = false
-ssl = nil
-tls = nil
 
 modules_enabled = {
   "roster";
@@ -18,6 +15,15 @@ modules_enabled = {
   "admin_adhoc";
   "mam";
   "register";
+  "limits";
+}
+
+-- Rate limiting for client connections
+limits = {
+  c2s = {
+    rate = "10kb/s";
+    burst = "50kb";
+  };
 }
 
 -- MAM (Message Archive Management) settings
@@ -32,11 +38,9 @@ c2s_ports = { 5222 }
 http_interfaces = { "*" }
 http_ports = { 5280 }
 
-c2s_require_encryption = false
-s2s_require_encryption = false
+c2s_require_encryption = true
+s2s_require_encryption = true
 s2s_secure_auth = false
-
-tls = {}
 
 log = {
   info = "*console";
@@ -46,9 +50,6 @@ log = {
 -- Store certs in writable data dir
 certificates = "certs"
 
-c2s_require_encryption = false
-s2s_require_encryption = false
-s2s_secure_auth = false
 https_ports = {}
 
 -- Allow browser apps from other origins (dev)
@@ -62,7 +63,7 @@ http_cors_override = {
 }
 consider_bosh_secure = true
 consider_websocket_secure = true
-allow_unencrypted_plain_auth = true
+allow_unencrypted_plain_auth = false
 bosh_max_inactivity = 120
 
 VirtualHost "localhost"

@@ -47,7 +47,7 @@ export default function LoginScreen() {
       Alert.alert("Hata", "Kullanici adi ve sifre gerekli!");
       return;
     }
-    const wsUrl = serverUrl.trim() || "ws://localhost/xmpp-websocket";
+    const wsUrl = serverUrl.trim() || "wss://localhost/xmpp-websocket";
     setConnecting(true);
     try {
       await xmpp.connect(jid.trim(), password, wsUrl);
@@ -80,7 +80,7 @@ export default function LoginScreen() {
       return;
     }
 
-    const wsUrl = serverUrl.trim() || "ws://localhost/xmpp-websocket";
+    const wsUrl = serverUrl.trim() || "wss://localhost/xmpp-websocket";
     // XMPP domain (VirtualHost) is always "localhost" for our Prosody server,
     // regardless of the WebSocket endpoint hostname (e.g. Cloudflare tunnel).
     const wsHost = wsUrl.replace(/^wss?:\/\//, "").replace(/\/.*$/, "").replace(/:\d+$/, "");
@@ -144,7 +144,7 @@ export default function LoginScreen() {
           <View style={styles.form}>
             <TextInput
               style={styles.input}
-              placeholder="Kullanici adi (emre@localhost)"
+              placeholder="Kullanici adi (ornek: ali@sunucu.com)"
               placeholderTextColor="#999"
               value={jid}
               onChangeText={setJid}
@@ -162,7 +162,7 @@ export default function LoginScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Sunucu (wss://example.com/xmpp-websocket)"
+              placeholder="Sunucu (wss://sunucu.com/xmpp-websocket)"
               placeholderTextColor="#999"
               value={serverUrl}
               onChangeText={setServerUrl}
@@ -213,7 +213,7 @@ export default function LoginScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Sunucu (wss://example.com/xmpp-websocket)"
+              placeholder="Sunucu (wss://sunucu.com/xmpp-websocket)"
               placeholderTextColor="#999"
               value={serverUrl}
               onChangeText={setServerUrl}

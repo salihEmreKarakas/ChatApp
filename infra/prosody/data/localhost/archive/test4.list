@@ -1,0 +1,39 @@
+item({
+	{
+		"slm";
+		["attr"] = {};
+		["name"] = "body";
+	};
+	["when"] = 1772239473;
+	["with"] = "test3@localhost";
+	["key"] = "cTVqBjNrmo-VjFS3";
+	["attr"] = {
+		["id"] = "msg_1772239473303_rulku8phf";
+		["to"] = "test4@localhost";
+		["stamp_legacy"] = "20260228T00:44:33";
+		["from"] = "test3@localhost/mobile";
+		["type"] = "chat";
+		["stamp"] = "2026-02-28T00:44:33Z";
+	};
+	["name"] = "message";
+});
+item({
+	{
+		["name"] = "seen";
+		["attr"] = {
+			["id"] = "msg_1772239473303_rulku8phf";
+			["xmlns"] = "urn:xmpp:receipts";
+		};
+	};
+	["when"] = 1772239473;
+	["with"] = "test3@localhost";
+	["key"] = "-kdWrQm6ekOWlqjH";
+	["attr"] = {
+		["from"] = "test4@localhost/DhitL5a_";
+		["to"] = "test3@localhost";
+		["stamp_legacy"] = "20260228T00:44:33";
+		["type"] = "chat";
+		["stamp"] = "2026-02-28T00:44:33Z";
+	};
+	["name"] = "message";
+});

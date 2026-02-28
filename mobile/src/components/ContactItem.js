@@ -3,12 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 
 export default function ContactItem({ contact, isOnline, unreadCount, onPress, onRemove }) {
   const isRoom = contact.type === "room";
-  const initial = isRoom ? "G" : contact.name.charAt(0).toUpperCase();
+  const displayName = contact.name || contact.jid?.split("@")[0] || "?";
+  const initial = isRoom ? "G" : displayName.charAt(0).toUpperCase();
 
   const handleLongPress = () => {
     Alert.alert(
       "Kisiyi Sil",
-      `${contact.name} kisisini silmek istiyor musunuz?`,
+      `${contact.name || contact.jid} kisisini silmek istiyor musunuz?`,
       [
         { text: "Iptal", style: "cancel" },
         { text: "Sil", style: "destructive", onPress: () => onRemove(contact.jid, contact.type) },
@@ -31,7 +32,7 @@ export default function ContactItem({ contact, isOnline, unreadCount, onPress, o
 
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
-          {contact.name}
+          {displayName}
         </Text>
         <Text style={styles.jid} numberOfLines={1}>
           {isRoom ? "Grup sohbeti" : contact.jid}
