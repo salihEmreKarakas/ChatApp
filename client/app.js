@@ -10,6 +10,7 @@ let myJid = null; // Current user's JID
 let typingStates = {}; // { jid: 'composing' | 'paused' | 'active' }
 let typingTimer = null; // Timer for paused state
 let presenceStates = {}; // { jid: 'online' | 'offline' }
+let uploadToken = null; // Token for file upload authentication
 
 // --- Message History & Notifications ---
 function getStorageKey(base) {
@@ -874,6 +875,9 @@ function connect() {
       // Subscribe to all contacts for presence updates
       subscribeToAllContacts();
 
+      // Get upload token for file sharing
+      fetchUploadToken();
+
       // Hide login, show disconnect button
       const loginSection = document.getElementById("loginSection");
       const btnConnect = document.getElementById("btnConnect");
@@ -950,7 +954,29 @@ function sendMessage() {
   }
 }
 
+async function fetchUploadToken() {
+  try {
+    const baseUrl = window.location.origin;
+    const resp = await fetch(`${baseUrl}/upload-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jid: myJid, secret: "chatapp-upload-secret-key-change-in-production" }),
+    });
+    const data = await resp.json();
+    if (data.token) {
+      uploadToken = data.token;
+      console.log("Upload token alındı");
+    }
+  } catch (err) {
+    console.warn("Upload token alınamadı:", err);
+  }
+}
+
 function handleFileSelect() {
+  if (!uploadToken) {
+    alert("Dosya yükleme yetkisi alınamadı. Tekrar bağlanın.");
+    return;
+  }
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.accept = "image/jpeg,image/png,image/gif,image/webp";
@@ -972,8 +998,16 @@ function handleFileSelect() {
 
     try {
       const baseUrl = window.location.origin;
-      const resp = await fetch(`${baseUrl}/upload`, { method: "POST", body: formData });
+      const resp = await fetch(`${baseUrl}/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${uploadToken}` },
+        body: formData,
+      });
       const data = await resp.json();
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
       if (data.url) {
         const fullUrl = `${baseUrl}${data.url}`;
         if (currentChat.type === "room") {

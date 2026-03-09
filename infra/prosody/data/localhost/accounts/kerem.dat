@@ -1,3 +1,6 @@
 return {
-	["password"] = "123456";
+	["stored_key"] = "130d3fe8031c9e95a4bf6c554dab2286d4e7ed73";
+	["salt"] = "e16b3db2-d1df-4f61-b662-b9e5a46565e7";
+	["server_key"] = "cb656ddc04b125ab6e07fda50fd5b38eeaaf41a4";
+	["iteration_count"] = 4096;
 };

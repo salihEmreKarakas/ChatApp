@@ -101,6 +101,27 @@ export default function ChatScreen({ route, navigation }) {
     }
   };
 
+  const getUploadBase = async () => {
+    try {
+      const creds = await require("@react-native-async-storage/async-storage").default.getItem("login_credentials");
+      if (creds) {
+        const { serverUrl } = JSON.parse(creds);
+        return serverUrl.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://").replace(/\/xmpp-websocket$/, "");
+      }
+    } catch (_) { }
+    return "http://localhost:8888";
+  };
+
+  const getUploadToken = async (uploadBase) => {
+    const resp = await fetch(`${uploadBase}/upload-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jid: state.myJid, secret: "chatapp-upload-secret-key-change-in-production" }),
+    });
+    const data = await resp.json();
+    return data.token || null;
+  };
+
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -113,19 +134,15 @@ export default function ChatScreen({ route, navigation }) {
     if (result.canceled || !result.assets?.[0]) return;
 
     const asset = result.assets[0];
-    // Determine upload base URL from the XMPP WebSocket URL stored in AsyncStorage
-    let uploadBase = "";
-    try {
-      const creds = await require("@react-native-async-storage/async-storage").default.getItem("login_credentials");
-      if (creds) {
-        const { serverUrl } = JSON.parse(creds);
-        // Convert wss://host/xmpp-websocket -> https://host
-        uploadBase = serverUrl.replace(/^wss:\/\//, "https://").replace(/^ws:\/\//, "http://").replace(/\/xmpp-websocket$/, "");
-      }
-    } catch (_) { }
-    if (!uploadBase) uploadBase = "http://localhost:8888";
+    const uploadBase = await getUploadBase();
 
     try {
+      const token = await getUploadToken(uploadBase);
+      if (!token) {
+        console.warn("[Upload] Token alınamadı");
+        return;
+      }
+
       const formData = new FormData();
       const fileName = asset.uri.split("/").pop() || "image.jpg";
       formData.append("file", {
@@ -136,9 +153,14 @@ export default function ChatScreen({ route, navigation }) {
 
       const resp = await fetch(`${uploadBase}/upload`, {
         method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
         body: formData,
       });
       const data = await resp.json();
+      if (data.error) {
+        console.warn("[Upload]", data.error);
+        return;
+      }
       if (data.url) {
         const fullUrl = `${uploadBase}${data.url}`;
         const msgType = contact.type === "room" ? "groupchat" : "chat";
