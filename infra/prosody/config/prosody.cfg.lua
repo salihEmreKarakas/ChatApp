@@ -69,39 +69,7 @@ bosh_max_inactivity = 120
 
 VirtualHost "localhost"
 
-VirtualHost "192.168.0.239"
-
-VirtualHost "192.168.137.1"
-
 Component "conference.localhost" "muc"
-  name = "Chat Rooms"
-  modules_enabled = { "muc_mam" }
-  restrict_room_creation = false
-  max_history_messages = 20
-  muc_room_locking = false
-  muc_room_lock_timeout = 0
-  muc_room_default_public = true
-  muc_room_default_members_only = false
-  muc_room_default_moderated = false
-  muc_room_default_public_jids = true
-  muc_room_default_change_subject = true
-  muc_room_default_history_length = 20
-
-Component "conference.192.168.0.239" "muc"
-  name = "Chat Rooms"
-  modules_enabled = { "muc_mam" }
-  restrict_room_creation = false
-  max_history_messages = 20
-  muc_room_locking = false
-  muc_room_lock_timeout = 0
-  muc_room_default_public = true
-  muc_room_default_members_only = false
-  muc_room_default_moderated = false
-  muc_room_default_public_jids = true
-  muc_room_default_change_subject = true
-  muc_room_default_history_length = 20
-
-Component "conference.192.168.137.1" "muc"
   name = "Chat Rooms"
   modules_enabled = { "muc_mam" }
   restrict_room_creation = false

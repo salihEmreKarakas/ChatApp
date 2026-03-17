@@ -1,8 +1,0 @@
-return {
-	["local"] = true;
-	["emre"] = true;
-	["mobil"] = true;
-	["ak"] = true;
-	["test"] = true;
-	["ayse"] = true;
-};

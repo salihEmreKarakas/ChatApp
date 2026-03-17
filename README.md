@@ -62,35 +62,53 @@ ChatApp/
 
 - Docker Desktop
 - Node.js (Expo için)
-- Python 3 (web sunucusu için)
+- Python 3 (web sunucusu ve dosya yükleme sunucusu için)
 
-### 1. XMPP Sunucusunu Başlat
+### 1. XMPP Sunucusunu Başlat (Prosody)
+
+Proje kök dizininde:
 
 ```bash
-# Prosody
-docker run -d --name prosody \
-  -p 15222:5222 -p 15280:5280 \
-  -v "$PWD/infra/prosody/config:/etc/prosody/conf.d" \
-  -v "$PWD/infra/prosody/data:/var/lib/prosody" \
-  prosody/prosody:latest
-
-# nginx reverse proxy
-docker run -d --name nginx_proxy \
-  -p 80:80 \
-  -v "$PWD/infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
-  nginx:alpine
+cd infra/prosody
+docker compose up -d
 ```
 
-### 2. Web İstemcisini Başlat
+Bu komut Prosody XMPP sunucusunu başlatır (C2S: `15222`, HTTP/WebSocket: `15280`).
+
+### 2. Nginx Reverse Proxy'yi Başlat
+
+```bash
+cd infra/nginx
+docker compose up -d
+```
+
+Nginx, port `8888` (HTTP) ve `443` (HTTPS) üzerinden tüm servislere tek giriş noktası olarak çalışır. SSL sertifikaları `infra/prosody/certs/` altından otomatik olarak mount edilir.
+
+### 3. Web İstemcisini Başlat
 
 ```bash
 cd client
-python3 -m http.server 3000
+python3 -m http.server 9090
 ```
 
-Tarayıcıda `http://localhost` adresine git.
+> **Not:** Nginx, web istemcisini `9090` portundan bekler. Port numarasını değiştirmeyin.
 
-### 3. Mobil Uygulamayı Başlat (Expo)
+### 4. Dosya Yükleme Sunucusunu Başlat
+
+Ayrı bir terminal penceresi açıp:
+
+```bash
+cd client
+python3 upload_server.py
+```
+
+Bu sunucu port `9091`'de çalışır ve sohbet içi dosya/medya paylaşımını yönetir.
+
+### 5. Tarayıcıdan Erişim
+
+Tarayıcıda `http://localhost:8888` adresine gidin.
+
+### 6. Mobil Uygulamayı Başlat (Expo)
 
 ```bash
 cd mobile
@@ -98,13 +116,13 @@ npm install
 npx expo start --tunnel
 ```
 
-Expo Go uygulamasıyla QR kodu tara.
+Expo Go uygulamasıyla QR kodu tarayın.
 
-### 4. Dış Erişim (isteğe bağlı)
+### 7. Dış Erişim (isteğe bağlı)
 
 ```bash
 # Cloudflare Quick Tunnel (hesap gerekmez)
-./cloudflared tunnel --url http://localhost:80
+cloudflared tunnel --url http://localhost:8888
 ```
 
 Çıkan `https://xxxx.trycloudflare.com` adresiyle internet üzerinden erişim sağlanır.

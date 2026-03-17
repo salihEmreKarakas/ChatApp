@@ -24,5 +24,8 @@ ngrok.log
 ngrok.zip
 ngrok_output.txt
 
+# Uploaded files
+client/uploads/
+
 # Logs
 *.log
