@@ -64,9 +64,18 @@ ChatApp/
 - Node.js (Expo için)
 - Python 3 (web sunucusu ve dosya yükleme sunucusu için)
 
-### 1. XMPP Sunucusunu Başlat (Prosody)
+### 1. SSL Sertifikası Oluştur
 
-Proje kök dizininde:
+Nginx HTTPS için self-signed sertifika gerektirir. Proje kök dizininde:
+
+```bash
+mkdir -p infra/prosody/certs
+openssl req -x509 -newkey rsa:2048 -keyout infra/prosody/certs/localhost.key \
+  -out infra/prosody/certs/localhost.crt -days 365 -nodes \
+  -subj "/CN=localhost"
+```
+
+### 2. XMPP Sunucusunu Başlat (Prosody)
 
 ```bash
 cd infra/prosody
@@ -75,7 +84,7 @@ docker compose up -d
 
 Bu komut Prosody XMPP sunucusunu başlatır (C2S: `15222`, HTTP/WebSocket: `15280`).
 
-### 2. Nginx Reverse Proxy'yi Başlat
+### 3. Nginx Reverse Proxy'yi Başlat
 
 ```bash
 cd infra/nginx
@@ -84,7 +93,7 @@ docker compose up -d
 
 Nginx, port `8888` (HTTP) ve `443` (HTTPS) üzerinden tüm servislere tek giriş noktası olarak çalışır. SSL sertifikaları `infra/prosody/certs/` altından otomatik olarak mount edilir.
 
-### 3. Web İstemcisini Başlat
+### 4. Web İstemcisini Başlat
 
 ```bash
 cd client
@@ -93,7 +102,7 @@ python3 -m http.server 9090
 
 > **Not:** Nginx, web istemcisini `9090` portundan bekler. Port numarasını değiştirmeyin.
 
-### 4. Dosya Yükleme Sunucusunu Başlat
+### 5. Dosya Yükleme Sunucusunu Başlat
 
 Ayrı bir terminal penceresi açıp:
 
@@ -104,11 +113,11 @@ python3 upload_server.py
 
 Bu sunucu port `9091`'de çalışır ve sohbet içi dosya/medya paylaşımını yönetir.
 
-### 5. Tarayıcıdan Erişim
+### 6. Tarayıcıdan Erişim
 
 Tarayıcıda `http://localhost:8888` adresine gidin.
 
-### 6. Mobil Uygulamayı Başlat (Expo)
+### 7. Mobil Uygulamayı Başlat (Expo)
 
 ```bash
 cd mobile
@@ -118,7 +127,7 @@ npx expo start --tunnel
 
 Expo Go uygulamasıyla QR kodu tarayın.
 
-### 7. Dış Erişim (isteğe bağlı)
+### 8. Dış Erişim (isteğe bağlı)
 
 ```bash
 # Cloudflare Quick Tunnel (hesap gerekmez)

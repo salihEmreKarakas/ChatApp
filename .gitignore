@@ -27,5 +27,8 @@ ngrok_output.txt
 # Uploaded files
 client/uploads/
 
+# SSL certificates (generated locally)
+infra/prosody/certs/
+
 # Logs
 *.log
